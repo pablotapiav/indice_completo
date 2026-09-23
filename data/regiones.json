@@ -1,6 +1,6 @@
 {
   "_fuente": "INE Chile, proyecciones de poblacion por region (valores aproximados, redondeados). Actualizar via PR si hay cifras mas recientes.",
-  "_uso": "La poblacion se usa unicamente como ponderador para agregar los indices regionales en un indice nacional (promedio ponderado), replicando el criterio de agregacion que usa el IPC oficial del INE.",
+  "_estado": "NO USADO por el pipeline actual (index/compute_index.py). El indice compara cadenas, no regiones - ver docs/LIMITACION_REGIONAL.md. Este archivo queda como referencia por si en el futuro aparece un dato regional real que justifique retomar la ponderacion por poblacion.",
   "regiones": [
     { "codigo": "XV", "nombre": "Arica y Parinacota", "capital": "Arica", "poblacion": 252000 },
     { "codigo": "I",   "nombre": "Tarapaca", "capital": "Iquique", "poblacion": 385000 },

@@ -30,14 +30,19 @@ deja variar el precio en el tiempo.
 IdC_t = 100 × Σ(q0_i × p_i,t) / Σ(q0_i × p_i,0)
 ```
 
-- `p_i,t`: precio del insumo `i` en el período `t` (mediana entre las cadenas
-  scrapeadas ese día — ver sección 4 sobre por qué mediana y no promedio).
-- `p_i,0`: precio del mismo insumo el día en que corrió el scraper por
-  primera vez (el "período base", 100 puntos por definición).
+- `p_i,t`: precio del insumo `i` en el período `t`, **por cadena** (mediana
+  entre los productos comparables encontrados en la búsqueda de esa cadena
+  ese día — ver sección 4 sobre por qué mediana y no un SKU fijo).
+- `p_i,0`: precio del mismo insumo, misma cadena, el día en que corrió el
+  scraper por primera vez (el "período base", 100 puntos por definición).
 - `q0_i`: gramos fijos de la ración (tabla de arriba).
 
-El costo de la ración completa el día base queda registrado en
-`data/indice_completo.json` → `costo_racion_base_clp`.
+Esto da un costo de ración **por cadena** cada día (lo que se muestra en el
+comparador del sitio). La serie nacional (`serie_nacional` en
+`data/indice_completo.json`) es el **promedio simple del costo de la ración
+entre las cadenas con dato ese día** — ver sección 5. El costo de la ración
+el día base queda registrado en `data/indice_completo.json` →
+`costo_racion_base_clp`.
 
 ## 3. De dónde salen los precios
 
@@ -47,20 +52,35 @@ sobre la plataforma VTEX (Jumbo y Santa Isabel), golpeando el endpoint
 el mismo mecanismo que usan comparadores de precios de terceros. Es JSON de
 solo lectura, sin login, sin carrito, sin datos de ninguna persona.
 
-**Cadenas explícitamente excluidas** (ver `data/productos.json` →
-`cadenas_excluidas`, con la razón de cada una):
+**El resto de las cadenas del comparador quedan con precio pendiente de
+captura manual** (ver `data/productos.json` → `cadenas`, campo `metodo` y
+`razon`, con el detalle exacto de cada una):
 
 - **Líder**: su `robots.txt` deshabilita explícitamente `/search*`,
-  `/catalogo/product*`, `/catalogo/category*` y rutas equivalentes. Se
-  respeta esa señal y no se scrapea, punto.
-- **Unimarc**: su sitio bloquea con Akamai incluso la lectura de
-  `/robots.txt` (403). No se intenta evadir esa protección.
+  `/catalogo/product*`, `/catalogo/category*` y rutas equivalentes para
+  cualquier bot genérico (solo permite Googlebot). Se respeta esa señal y no
+  se scrapea, punto — tampoco con un navegador automatizado (Playwright):
+  usar una herramienta más sofisticada específicamente porque el sitio
+  bloquea peticiones simples es evadir la señal, no cumplirla. Ver
+  `docs/LIMITACION_REGIONAL.md` para el detalle de por qué tampoco sirve
+  para regionalizar el precio.
+- **Unimarc, Mayorista 10 y Alvi** (las tres marcas de SMU): su sitio
+  bloquea con Akamai incluso la lectura de `/robots.txt` (403). No se
+  intenta evadir esa protección.
+- **SuperBodega aCuenta**: su `robots.txt` sí permite scrapear catálogo,
+  pero el sitio es una SPA (plataforma Instaleap) que arma los resultados
+  vía llamadas internas no descubribles con un cliente HTTP simple sin
+  ejecutar JavaScript. Queda como candidato para una futura versión con
+  navegador headless — no es una protección que se esté evadiendo, es una
+  limitación técnica del scraper actual.
 - **Tottus**: el endpoint de catálogo devolvió 503 de forma consistente en
-  las pruebas; queda fuera hasta encontrar una vía compatible con su
-  `robots.txt`.
+  las pruebas y no corre en VTEX; queda fuera hasta encontrar su API real.
 
 Este es, a propósito, un criterio conservador: se prefiere cubrir menos
-cadenas pero solo por vías que las propias tiendas no restringen.
+cadenas de forma automática pero solo por vías que las propias tiendas no
+restringen. Las cadenas pendientes siguen apareciendo en el comparador del
+sitio (con precio en blanco y la razón visible) en vez de desaparecer de la
+lista — la ausencia de dato es información, no algo que esconder.
 
 ## 4. Por qué mediana y no un SKU fijo
 
@@ -82,30 +102,32 @@ Normalización de unidades:
   vez de asumir la convención. Se excluyen listados ambiguos del tipo
   "(1 a 2 un. aprox)" porque no queda claro si el precio es por kg o por bolsa.
 
-## 5. Cobertura regional — la parte más importante de leer
+## 5. Por qué el foco es "por cadena" y no "por región"
 
-**Limitación honesta:** el catálogo online de Jumbo y Santa Isabel expone un
-**único precio de lista por SKU a nivel nacional** — no se encontró
-variación de precio por región/comuna en el API público (se probó con
-distintos `sc` / sales channel y no hubo diferencia). Esto es consistente
-con cómo varias cadenas manejan su catálogo online en Chile.
+La versión original de este proyecto quería comparar precios por región,
+igual que el IPC. Se investigó en serio (no es una suposición): se probó si
+cambiar la ubicación/código postal entregado a Jumbo o Santa Isabel
+destrababa un precio distinto, y se buscaron cadenas genuinamente
+regionales con e-commerce real. Ninguna de las dos rindió frutos —
+el detalle completo, con las pruebas técnicas exactas que se hicieron
+(endpoints, resultados, códigos postales usados), está en
+[`docs/LIMITACION_REGIONAL.md`](LIMITACION_REGIONAL.md). En resumen: el
+catálogo online de Jumbo y Santa Isabel expone un **único precio de lista
+por SKU a nivel nacional**, confirmado empíricamente, y no se encontró
+ninguna cadena regional con precios publicados online fuera de las grandes
+cadenas nacionales.
 
-Por eso, **hoy** el mismo precio de referencia nacional se aplica como proxy
-a las 16 regiones. El pipeline de agregación (`index/compute_index.py`) ya
-está armado para regionalizar de verdad apenas haya datos reales de terreno:
-si existe `data/precios_manual_regional.csv` con filas
-`fecha,region_codigo,categoria,precio_unitario,unidad,fuente`, esos valores
-reemplazan al proxy nacional **solo para esa región/fecha/categoría**, sin
-tocar el resto. Es el punto de entrada para que alguien en Arica o Coyhaique
-mande un PR con el precio real de su supermercado y la región deje de
-depender del proxy.
+Por eso el índice compara **cadenas entre sí**, no regiones. El índice
+nacional (`serie_nacional` en `data/indice_completo.json`) es el
+**promedio del costo de la ración entre las cadenas que tienen dato
+completo ese día** — hoy Jumbo y Santa Isabel; se recalcula solo cuando se
+suma una cadena nueva (scrapeada o vía captura manual en
+`data/precios_manuales_cadena.csv`), sin tocar el resto del pipeline.
 
-El índice nacional se calcula como el **promedio ponderado por población**
-de los 16 índices regionales (pesos en `data/regiones.json`, proyecciones
-INE aproximadas) — mismo criterio de agregación que usa el IPC oficial,
-aplicado sobre datos que hoy son mayoritariamente el mismo proxy repetido
-16 veces. Apenas se sumen overrides regionales reales, el índice nacional
-empieza a reflejar diferencias reales entre regiones.
+Si en el futuro aparece una cadena real, acotada a una sola región, con
+e-commerce funcional, o alguien aporta un precio de terreno capturado a
+mano, `data/precios_manuales_cadena.csv` es el punto de entrada — ver
+[`docs/LIMITACION_REGIONAL.md`](LIMITACION_REGIONAL.md#esto-sigue-abierto).
 
 ## 6. Comparación con el IPC oficial
 

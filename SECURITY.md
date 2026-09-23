@@ -17,10 +17,28 @@ una API key o una credencial en un PR, es un error: repórtalo como issue.
 
 - **Solo lectura de catálogo público.** Nunca se toca carrito, cuenta,
   checkout ni ningún endpoint que requiera sesión.
-- **Se respeta `robots.txt`.** Dos cadenas quedaron explícitamente fuera
-  (Líder por `robots.txt`, Unimarc por bloqueo activo tipo Akamai) — ver
-  `docs/METODOLOGIA.md` sección 3. No se intenta evadir ninguna protección
-  anti-bot.
+- **Se respeta `robots.txt`, siempre, incluso cuando sería técnicamente
+  posible saltárselo.** Seis de las ocho cadenas del comparador quedaron
+  fuera del scraper automático — Líder (`robots.txt` lo deshabilita
+  explícitamente), Unimarc/Mayorista 10/Alvi (bloqueo Akamai activo,
+  incluso en `/robots.txt`), SuperBodega aCuenta (robots.txt lo permite,
+  pero es una SPA sin API descubrible sin ejecutar JavaScript) y Tottus
+  (503 consistente, no corre en VTEX) — ver `docs/METODOLOGIA.md` sección 3
+  para el detalle de cada una. **No se usa un navegador automatizado
+  (Playwright ni similar) para sortear estas protecciones**: si un sitio
+  bloquea peticiones simples, usar una herramienta más sofisticada
+  específicamente por eso es evasión, no cumplimiento, y este proyecto no
+  lo hace — ni siquiera para "solo probar algo".
+- Los precios de las cadenas bloqueadas, si alguien los aporta, se cargan a
+  mano en `data/precios_manuales_cadena.csv` — eso es una persona
+  consultando un sitio como cualquier visitante, no un bot, y no está
+  sujeto a `robots.txt` (que regula agentes automatizados).
+- **Tampoco se intentó "destrabar" precios regionales simulando otra
+  ubicación** (código postal falso, cuenta registrada con dirección falsa):
+  se probó técnicamente que no existe una segunda lista de precios detrás
+  de eso (ver `docs/LIMITACION_REGIONAL.md`), y de todas formas no es algo
+  que este proyecto construiría — no se automatiza engañar a un tercero
+  sobre la identidad o ubicación de quien hace la consulta.
 - **Rate limiting conservador** (`scraper/vtex_client.py`:
   `REQUEST_DELAY_SECONDS`) y reintentos acotados, nunca loops infinitos.
 - **User-Agent identificable**, con propósito del bot explicado en el string

@@ -1,216 +1,89 @@
 {
-  "_descripcion": "Indice del Completo (IdC): Laspeyres base 100 sobre salchicha+mayonesa+palta+tomate.",
+  "_descripcion": "Indice del Completo (IdC): Laspeyres base 100 sobre salchicha+mayonesa+palta+tomate, comparado ENTRE CADENAS.",
   "_metodologia": "docs/METODOLOGIA.md",
+  "_nota_regional": "docs/LIMITACION_REGIONAL.md",
   "base_periodo": "2026-09-23",
   "costo_racion_base_clp": 1227.79,
-  "generado_en": "2026-09-23T18:04:49.553293+00:00",
+  "generado_en": "2026-09-23T19:30:28.306893+00:00",
   "serie_nacional": [
-    {
-      "fecha": "2026-09-23",
-      "indice": 100.0
-    }
-  ],
-  "serie_referencia_sin_ponderar": [
     {
       "fecha": "2026-09-23",
       "precio_completo_clp": 1227.79,
       "indice": 100.0
     }
   ],
-  "serie_regional": {
-    "XV": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "I": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "II": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "III": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "IV": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "V": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "RM": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "VI": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "VII": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "XVI": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "VIII": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "IX": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "XIV": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "X": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "XI": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ],
-    "XII": [
-      {
-        "fecha": "2026-09-23",
-        "precio_completo_clp": 1227.79,
-        "indice": 100.0
-      }
-    ]
-  },
-  "regiones": [
+  "cadenas": [
     {
-      "codigo": "XV",
-      "nombre": "Arica y Parinacota",
-      "capital": "Arica"
+      "clave": "jumbo",
+      "nombre": "Jumbo",
+      "url": "https://www.jumbo.cl",
+      "metodo": "automatico",
+      "razon_pendiente": null,
+      "precio_completo_clp": 1147.54,
+      "fecha": "2026-09-23"
     },
     {
-      "codigo": "I",
-      "nombre": "Tarapaca",
-      "capital": "Iquique"
+      "clave": "santaisabel",
+      "nombre": "Santa Isabel",
+      "url": "https://www.santaisabel.cl",
+      "metodo": "automatico",
+      "razon_pendiente": null,
+      "precio_completo_clp": 1308.04,
+      "fecha": "2026-09-23"
     },
     {
-      "codigo": "II",
-      "nombre": "Antofagasta",
-      "capital": "Antofagasta"
+      "clave": "lider",
+      "nombre": "Líder",
+      "url": "https://www.lider.cl",
+      "metodo": "manual_pendiente",
+      "razon_pendiente": "robots.txt de lider.cl deshabilita explícitamente /search*, /catalogo/product*, /catalogo/category*, /supermercado/product*, /supermercado/category* y /supermercado* para cualquier bot genérico (solo permite Googlebot). Se respeta esa señal: no se scrapea, ni con cliente HTTP simple ni con navegador automatizado (Playwright habría sido evasión, no cumplimiento). Precio pendiente de captura manual.",
+      "precio_completo_clp": null,
+      "fecha": null
     },
     {
-      "codigo": "III",
-      "nombre": "Atacama",
-      "capital": "Copiapo"
+      "clave": "unimarc",
+      "nombre": "Unimarc",
+      "url": "https://www.unimarc.cl",
+      "metodo": "manual_pendiente",
+      "razon_pendiente": "Bloqueo activo tipo Akamai: incluso /robots.txt devuelve 403. No se intenta evadir la protección anti-bot. Precio pendiente de captura manual.",
+      "precio_completo_clp": null,
+      "fecha": null
     },
     {
-      "codigo": "IV",
-      "nombre": "Coquimbo",
-      "capital": "La Serena"
+      "clave": "mayorista10",
+      "nombre": "Mayorista 10",
+      "url": "https://www.mayorista10.cl",
+      "metodo": "manual_pendiente",
+      "razon_pendiente": "Mismo bloqueo Akamai que Unimarc (ambas marcas de SMU, mismo backend/protección). Precio pendiente de captura manual.",
+      "precio_completo_clp": null,
+      "fecha": null
     },
     {
-      "codigo": "V",
-      "nombre": "Valparaiso",
-      "capital": "Valparaiso"
+      "clave": "acuenta",
+      "nombre": "SuperBodega aCuenta",
+      "url": "https://www.acuenta.cl",
+      "metodo": "manual_pendiente",
+      "razon_pendiente": "robots.txt SÍ permite scrapear catálogo/búsqueda, pero el sitio es una SPA (Instaleap) que arma los resultados vía llamadas internas (GraphQL) no descubribles con un cliente HTTP simple, sin ejecutar JavaScript. Requeriría un navegador headless para encontrar la API; queda como candidato futuro, no evasión de ninguna protección (robots.txt lo permite). Precio pendiente de captura manual.",
+      "precio_completo_clp": null,
+      "fecha": null
     },
     {
-      "codigo": "RM",
-      "nombre": "Metropolitana de Santiago",
-      "capital": "Santiago"
+      "clave": "alvi",
+      "nombre": "Alvi",
+      "url": "https://www.alvi.cl",
+      "metodo": "manual_pendiente",
+      "razon_pendiente": "Mismo bloqueo Akamai que Unimarc y Mayorista 10 (marca SMU). Precio pendiente de captura manual.",
+      "precio_completo_clp": null,
+      "fecha": null
     },
     {
-      "codigo": "VI",
-      "nombre": "Libertador General Bernardo O'Higgins",
-      "capital": "Rancagua"
-    },
-    {
-      "codigo": "VII",
-      "nombre": "Maule",
-      "capital": "Talca"
-    },
-    {
-      "codigo": "XVI",
-      "nombre": "Nuble",
-      "capital": "Chillan"
-    },
-    {
-      "codigo": "VIII",
-      "nombre": "Biobio",
-      "capital": "Concepcion"
-    },
-    {
-      "codigo": "IX",
-      "nombre": "La Araucania",
-      "capital": "Temuco"
-    },
-    {
-      "codigo": "XIV",
-      "nombre": "Los Rios",
-      "capital": "Valdivia"
-    },
-    {
-      "codigo": "X",
-      "nombre": "Los Lagos",
-      "capital": "Puerto Montt"
-    },
-    {
-      "codigo": "XI",
-      "nombre": "Aysen del General Carlos Ibanez del Campo",
-      "capital": "Coyhaique"
-    },
-    {
-      "codigo": "XII",
-      "nombre": "Magallanes y de la Antartica Chilena",
-      "capital": "Punta Arenas"
+      "clave": "tottus",
+      "nombre": "Tottus",
+      "url": "https://www.tottus.cl",
+      "metodo": "manual_pendiente",
+      "razon_pendiente": "robots.txt permite scrapear catálogo, pero el sitio no corre en VTEX (a diferencia de Jumbo/Santa Isabel) y el endpoint probado devuelve 503 de forma consistente. Queda como candidato futuro para reverse-engineering de su API real. Precio pendiente de captura manual.",
+      "precio_completo_clp": null,
+      "fecha": null
     }
   ]
 }

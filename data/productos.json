@@ -37,23 +37,59 @@
       "nombre_excluye": ["salsa", "pure", "deshidratado", "seco", "conserva", "aprox", " un."]
     }
   },
+  "_nota_enfoque": "El indice compara CADENAS (Lider, Jumbo, Unimarc, Santa Isabel, Mayorista 10, aCuenta), no regiones. Ver docs/LIMITACION_REGIONAL.md para la razon del cambio de foco.",
   "cadenas": {
     "jumbo": {
       "nombre": "Jumbo",
+      "url": "https://www.jumbo.cl",
+      "metodo": "automatico",
       "cuenta_vtex": "jumbocl",
       "robots_txt": "https://www.jumbo.cl/robots.txt",
       "notas_robots": "El robots.txt de jumbo.cl no restringe busqueda/categoria/producto; solo excluye checkout, cuenta y parametros de filtro (map=, ps=, sc=)."
     },
     "santaisabel": {
       "nombre": "Santa Isabel",
+      "url": "https://www.santaisabel.cl",
+      "metodo": "automatico",
       "cuenta_vtex": "santaisabel",
       "robots_txt": "https://www.santaisabel.cl/robots.txt",
       "notas_robots": "Mismo criterio que jumbo.cl: no restringe busqueda/categoria/producto."
+    },
+    "lider": {
+      "nombre": "Líder",
+      "url": "https://www.lider.cl",
+      "metodo": "manual_pendiente",
+      "razon": "robots.txt de lider.cl deshabilita explícitamente /search*, /catalogo/product*, /catalogo/category*, /supermercado/product*, /supermercado/category* y /supermercado* para cualquier bot genérico (solo permite Googlebot). Se respeta esa señal: no se scrapea, ni con cliente HTTP simple ni con navegador automatizado (Playwright habría sido evasión, no cumplimiento). Precio pendiente de captura manual."
+    },
+    "unimarc": {
+      "nombre": "Unimarc",
+      "url": "https://www.unimarc.cl",
+      "metodo": "manual_pendiente",
+      "razon": "Bloqueo activo tipo Akamai: incluso /robots.txt devuelve 403. No se intenta evadir la protección anti-bot. Precio pendiente de captura manual."
+    },
+    "mayorista10": {
+      "nombre": "Mayorista 10",
+      "url": "https://www.mayorista10.cl",
+      "metodo": "manual_pendiente",
+      "razon": "Mismo bloqueo Akamai que Unimarc (ambas marcas de SMU, mismo backend/protección). Precio pendiente de captura manual."
+    },
+    "acuenta": {
+      "nombre": "SuperBodega aCuenta",
+      "url": "https://www.acuenta.cl",
+      "metodo": "manual_pendiente",
+      "razon": "robots.txt SÍ permite scrapear catálogo/búsqueda, pero el sitio es una SPA (Instaleap) que arma los resultados vía llamadas internas (GraphQL) no descubribles con un cliente HTTP simple, sin ejecutar JavaScript. Requeriría un navegador headless para encontrar la API; queda como candidato futuro, no evasión de ninguna protección (robots.txt lo permite). Precio pendiente de captura manual."
+    },
+    "alvi": {
+      "nombre": "Alvi",
+      "url": "https://www.alvi.cl",
+      "metodo": "manual_pendiente",
+      "razon": "Mismo bloqueo Akamai que Unimarc y Mayorista 10 (marca SMU). Precio pendiente de captura manual."
+    },
+    "tottus": {
+      "nombre": "Tottus",
+      "url": "https://www.tottus.cl",
+      "metodo": "manual_pendiente",
+      "razon": "robots.txt permite scrapear catálogo, pero el sitio no corre en VTEX (a diferencia de Jumbo/Santa Isabel) y el endpoint probado devuelve 503 de forma consistente. Queda como candidato futuro para reverse-engineering de su API real. Precio pendiente de captura manual."
     }
-  },
-  "cadenas_excluidas": {
-    "lider": "robots.txt de lider.cl deshabilita explicitamente /search*, /catalogo/product*, /catalogo/category*, /supermercado/product* y /supermercado/category* -> se respeta y NO se scrapea.",
-    "unimarc": "unimarc.cl bloquea automaticamente (Akamai, HTTP 403 incluso para /robots.txt) -> no se intenta evadir la proteccion anti-bot.",
-    "tottus": "Endpoint de catalogo probado devuelve 503 de forma consistente; se deja fuera hasta identificar una via compatible con su robots.txt."
   }
 }

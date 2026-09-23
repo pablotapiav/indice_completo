@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Índice del Completo</title>
-<meta name="description" content="Cuánto ha subido el completo italiano (vienesa, mayonesa, palta, tomate) en cada región de Chile, comparado con el IPC oficial. Base 100.">
+<meta name="description" content="Cuánto cuesta armar un completo italiano (vienesa, mayonesa, palta, tomate) en Líder, Jumbo, Unimarc, Santa Isabel y otras cadenas de Chile, comparado con el IPC oficial. Base 100.">
 <style>
   .viz-root {
     color-scheme: light;
@@ -142,6 +142,30 @@
     font-size: 12px; color: var(--text-secondary); margin-top: 18px; line-height: 1.55;
   }
   code { background: var(--gridline); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+  .cadena-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--gridline);
+  }
+  .cadena-row:last-child { border-bottom: none; }
+  .cadena-nombre {
+    flex: 0 0 150px; font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .cadena-nombre a { color: inherit; text-decoration: none; }
+  .cadena-nombre a:hover { text-decoration: underline; }
+  .cadena-bar-track { flex: 1; height: 20px; background: var(--gridline); border-radius: 4px; overflow: hidden; }
+  .cadena-bar-fill {
+    height: 100%; background: var(--series-1); border-radius: 4px 0 0 4px;
+    display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
+    min-width: 2px; transition: width .3s ease;
+  }
+  .cadena-bar-fill .valor { font-size: 11.5px; color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cadena-pendiente {
+    flex: 1; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+  }
+  .cadena-pendiente .badge { flex: 0 0 auto; }
+  .cadena-pendiente .razon { cursor: help; border-bottom: 1px dotted var(--text-muted); }
 </style>
 </head>
 <body>
@@ -152,9 +176,9 @@
     <header class="hero">
       <h1>🌭 Índice del Completo</h1>
       <div class="sub">
-        Cuánto cuesta armar un completo italiano (vienesa + mayonesa + palta + tomate)
-        en supermercados online de Chile, semana a semana, comparado con el IPC oficial del INE.
-        Base 100 en el día que partió la medición.
+        Cuánto cuesta armar un completo italiano (vienesa + mayonesa + palta + tomate) en
+        Líder, Jumbo, Unimarc, Santa Isabel y otras cadenas de Chile — comparado entre ellas
+        y contra el IPC oficial del INE. Base 100 en el día que partió la medición.
       </div>
     </header>
 
@@ -170,32 +194,34 @@
 
     <section class="card">
       <h2>Costo de la ración hoy</h2>
-      <div class="card-sub">Precio de referencia nacional (mediana entre cadenas scrapeadas)</div>
+      <div class="card-sub">Promedio entre las cadenas con dato disponible ese día</div>
       <div class="stat-row" id="statTiles"></div>
     </section>
 
     <section class="card">
-      <h2>Por región</h2>
-      <div class="card-sub" id="regionSub">Índice del Completo por capital regional (click en una columna para ordenar)</div>
-      <div id="regionTableWrap"></div>
+      <h2>Por cadena</h2>
+      <div class="card-sub">Costo de la ración en cada supermercado — de más barato a más caro</div>
+      <div id="cadenasWrap"></div>
     </section>
 
     <div class="disclaimer">
       <strong>Cómo leer esto:</strong> el IdC es un índice tipo Laspeyres sobre una canasta fija de 4 insumos
-      (metodología completa en <a href="docs/METODOLOGIA.md">docs/METODOLOGIA.md</a>). El precio se obtiene de
-      catálogos online de Jumbo y Santa Isabel, que publican un precio de lista nacional — no se confirmó
-      variación de precio por región en esas cadenas, así que hoy el mismo precio de referencia se aplica a
-      las 16 regiones. La columna "cobertura" indica si una región ya tiene un precio de terreno real
-      (<code>data/precios_manual_regional.csv</code>) o si todavía usa el proxy nacional. Este es un proyecto
-      independiente, no oficial, sin fines de lucro y con fines humorístico-estadísticos: no reemplaza al IPC
-      del INE ni está afiliado a él ni a ningún supermercado.
+      (metodología completa en <a href="docs/METODOLOGIA.md">docs/METODOLOGIA.md</a>). Este proyecto partió
+      queriendo comparar precios <em>por región</em>, pero no fue posible conseguir eso de forma legítima —
+      el porqué, con las pruebas técnicas que se hicieron, está documentado sin vueltas en
+      <a href="docs/LIMITACION_REGIONAL.md">docs/LIMITACION_REGIONAL.md</a>. Por eso el foco es comparar
+      <strong>cadenas de supermercado</strong> entre sí. Líder y Unimarc (entre otras) aparecen en la lista
+      pero sin precio: sus sitios bloquean el scraping (robots.txt o protección anti-bot) y esta página no
+      evade esas protecciones — el precio queda pendiente de que alguien lo capture a mano. Este es un
+      proyecto independiente, no oficial, sin fines de lucro y con fines humorístico-estadísticos: no
+      reemplaza al IPC del INE ni está afiliado a él ni a ningún supermercado.
     </div>
 
     <footer>
       Fuentes: catálogo público de <a href="https://www.jumbo.cl" rel="noopener">Jumbo.cl</a> y
       <a href="https://www.santaisabel.cl" rel="noopener">SantaIsabel.cl</a> (scraper propio, respeta robots.txt) ·
       IPC oficial vía <a href="https://mindicador.cl" rel="noopener">mindicador.cl</a> (réplica pública de series INE/Banco Central) ·
-      código en <a href="https://github.com" rel="noopener">GitHub</a> (MIT) ·
+      código en <a href="https://github.com/pablotapiav/indice_completo" rel="noopener">GitHub</a> (MIT) ·
       <span id="ultimaActualizacion"></span>
     </footer>
   </div>
@@ -342,10 +368,12 @@
   // ---------- stat tiles ----------
   function renderStatTiles(container, indiceData) {
     container.innerHTML = "";
-    var ref = indiceData.serie_referencia_sin_ponderar;
-    var ultimo = ref[ref.length - 1];
-    var base = ref[0];
+    var serie = indiceData.serie_nacional;
+    var ultimo = serie[serie.length - 1];
+    var base = serie[0];
     var deltaPct = ((ultimo.precio_completo_clp / base.precio_completo_clp) - 1) * 100;
+    var conDato = indiceData.cadenas.filter(function (c) { return c.precio_completo_clp !== null; }).length;
+    var total = indiceData.cadenas.length;
 
     function tile(label, value, delta, color) {
       var t = document.createElement("div");
@@ -359,63 +387,35 @@
 
     container.appendChild(tile("Precio ración (hoy)", fmtCLP(ultimo.precio_completo_clp), "base: " + fmtCLP(base.precio_completo_clp) + " el " + fmtFecha(base.fecha), "var(--text-secondary)"));
     container.appendChild(tile("Índice del Completo", fmtIdx(ultimo.indice), (deltaPct >= 0 ? "+" : "") + deltaPct.toFixed(2) + "% desde la base", deltaPct >= 0 ? "var(--critical)" : "var(--good)"));
-    container.appendChild(tile("Regiones cubiertas", "16 / 16", "capitales regionales, ver tabla abajo", "var(--text-secondary)"));
+    container.appendChild(tile("Cadenas con precio", conDato + " / " + total, "el resto está pendiente de captura manual", "var(--text-secondary)"));
   }
 
-  // ---------- tabla regional ----------
-  function renderRegionTable(container, indiceData, overridesRegiones) {
-    var filas = indiceData.regiones.map(function (r) {
-      var serie = indiceData.serie_regional[r.codigo] || [];
-      var ultimo = serie[serie.length - 1];
-      return {
-        region: r.nombre,
-        capital: r.capital,
-        indice: ultimo ? ultimo.indice : null,
-        precio: ultimo ? ultimo.precio_completo_clp : null,
-        cobertura: overridesRegiones.has(r.codigo) ? "terreno" : "proxy nacional",
-      };
+  // ---------- comparador por cadena ----------
+  function renderCadenas(container, cadenas) {
+    var conDato = cadenas.filter(function (c) { return c.precio_completo_clp !== null; });
+    var sinDato = cadenas.filter(function (c) { return c.precio_completo_clp === null; });
+    var maxPrecio = conDato.length
+      ? Math.max.apply(null, conDato.map(function (c) { return c.precio_completo_clp; }))
+      : 1;
+
+    var html = "";
+    conDato.forEach(function (c) {
+      var pct = Math.max((c.precio_completo_clp / maxPrecio) * 100, 4);
+      html += '<div class="cadena-row">' +
+        '<div class="cadena-nombre"><a href="' + c.url + '" target="_blank" rel="noopener">' + c.nombre + "</a></div>" +
+        '<div class="cadena-bar-track"><div class="cadena-bar-fill" style="width:' + pct.toFixed(1) + '%">' +
+        '<span class="valor">' + fmtCLP(c.precio_completo_clp) + "</span></div></div>" +
+        "</div>";
     });
-
-    var ordenCol = "region", ordenAsc = true;
-
-    function draw() {
-      filas.sort(function (a, b) {
-        var av = a[ordenCol], bv = b[ordenCol];
-        if (av === null) return 1;
-        if (bv === null) return -1;
-        if (typeof av === "string") return ordenAsc ? av.localeCompare(bv) : bv.localeCompare(av);
-        return ordenAsc ? av - bv : bv - av;
-      });
-
-      var html = "<table><thead><tr>" +
-        '<th data-col="region">Región</th>' +
-        '<th data-col="capital">Capital</th>' +
-        '<th data-col="indice" class="num">Índice</th>' +
-        '<th data-col="precio" class="num">Precio ración</th>' +
-        '<th data-col="cobertura">Cobertura</th>' +
-        "</tr></thead><tbody>";
-      filas.forEach(function (f) {
-        html += "<tr>" +
-          "<td>" + f.region + "</td>" +
-          "<td>" + f.capital + "</td>" +
-          '<td class="num">' + (f.indice !== null ? fmtIdx(f.indice) : "—") + "</td>" +
-          '<td class="num">' + (f.precio !== null ? fmtCLP(f.precio) : "—") + "</td>" +
-          "<td><span class=\"badge\">" + f.cobertura + "</span></td>" +
-          "</tr>";
-      });
-      html += "</tbody></table>";
-      container.innerHTML = html;
-
-      container.querySelectorAll("th").forEach(function (th) {
-        th.addEventListener("click", function () {
-          var col = th.getAttribute("data-col");
-          ordenAsc = ordenCol === col ? !ordenAsc : true;
-          ordenCol = col;
-          draw();
-        });
-      });
-    }
-    draw();
+    sinDato.forEach(function (c) {
+      html += '<div class="cadena-row">' +
+        '<div class="cadena-nombre"><a href="' + c.url + '" target="_blank" rel="noopener">' + c.nombre + "</a></div>" +
+        '<div class="cadena-pendiente">' +
+        '<span class="badge">pendiente</span>' +
+        '<span class="razon" title="' + (c.razon_pendiente || "").replace(/"/g, "&quot;") + '">por qué no hay dato →</span>' +
+        "</div></div>";
+    });
+    container.innerHTML = html;
   }
 
   // ---------- carga de datos ----------
@@ -434,32 +434,30 @@
     var ipcData = res[1];
 
     renderStatTiles(document.getElementById("statTiles"), indiceData);
-
-    var overridesRegiones = new Set(); // se llena si data/precios_manual_regional.csv aporta filas (ver compute_index.py)
-    renderRegionTable(document.getElementById("regionTableWrap"), indiceData, overridesRegiones);
+    renderCadenas(document.getElementById("cadenasWrap"), indiceData.cadenas);
 
     var serieIpcAlineada = [];
     if (ipcData) {
       var porMes = {};
       ipcData.serie.forEach(function (p) { porMes[p.mes] = p.indice; });
-      serieIpcAlineada = indiceData.serie_referencia_sin_ponderar.map(function (p) {
+      serieIpcAlineada = indiceData.serie_nacional.map(function (p) {
         var mes = p.fecha.slice(0, 7);
         return { fecha: p.fecha, indice: porMes[mes] !== undefined ? porMes[mes] : 100 };
       });
     } else {
-      serieIpcAlineada = indiceData.serie_referencia_sin_ponderar.map(function (p) {
+      serieIpcAlineada = indiceData.serie_nacional.map(function (p) {
         return { fecha: p.fecha, indice: 100 };
       });
     }
 
     renderComparativo(
       document.getElementById("chartComparativo"),
-      indiceData.serie_referencia_sin_ponderar,
+      indiceData.serie_nacional,
       serieIpcAlineada
     );
 
     document.getElementById("ultimaActualizacion").textContent =
-      "última actualización: " + fmtFecha(indiceData.serie_referencia_sin_ponderar.slice(-1)[0].fecha);
+      "última actualización: " + fmtFecha(indiceData.serie_nacional.slice(-1)[0].fecha);
   }).catch(function (err) {
     document.getElementById("chartComparativo").innerHTML =
       '<div class="empty-state"><div class="big">No se pudo cargar la data</div>' + err.message + "</div>";

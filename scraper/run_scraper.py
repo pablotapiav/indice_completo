@@ -54,7 +54,16 @@ def cargar_config() -> dict:
 def ejecutar_scraping() -> list[dict]:
     config = cargar_config()
     categorias = config["categorias"]
-    cadenas = config["cadenas"]
+    cadenas = {k: v for k, v in config["cadenas"].items() if v.get("metodo") == "automatico"}
+    cadenas_manuales = {k: v for k, v in config["cadenas"].items() if v.get("metodo") == "manual_pendiente"}
+    if cadenas_manuales:
+        print(
+            f"[INFO] {len(cadenas_manuales)} cadena(s) quedan fuera del scraper automático "
+            f"({', '.join(c['nombre'] for c in cadenas_manuales.values())}) - ver razones en "
+            "data/productos.json y docs/LIMITACION_REGIONAL.md. Precio vía "
+            "data/precios_manuales_cadena.csv si alguien lo captura a mano.",
+            file=sys.stderr,
+        )
 
     filas: list[dict] = []
     hoy = date.today().isoformat()
@@ -110,13 +119,26 @@ def guardar_snapshot(filas: list[dict]) -> Path:
 
 
 def append_historico(filas: list[dict]) -> None:
-    existe = RUTA_HISTORICO.exists()
-    with RUTA_HISTORICO.open("a", newline="", encoding="utf-8") as f:
+    """Agrega filas nuevas al histórico, reemplazando cualquier fila previa con
+    la misma (fecha, cadena, categoria) - así correr el scraper dos veces el
+    mismo día no deja duplicados."""
+    claves_nuevas = {(f["fecha"], f["cadena"], f["categoria"]) for f in filas}
+
+    filas_previas: list[dict] = []
+    if RUTA_HISTORICO.exists():
+        with RUTA_HISTORICO.open(encoding="utf-8") as f:
+            for fila in csv.DictReader(f):
+                clave = (fila["fecha"], fila["cadena"], fila["categoria"])
+                if clave not in claves_nuevas:
+                    filas_previas.append(fila)
+
+    todas = filas_previas + [{k: fila[k] for k in COLUMNAS_HISTORICO} for fila in filas]
+    todas.sort(key=lambda f: (f["fecha"], f["cadena"], f["categoria"]))
+
+    with RUTA_HISTORICO.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=COLUMNAS_HISTORICO)
-        if not existe:
-            writer.writeheader()
-        for fila in filas:
-            writer.writerow({k: fila[k] for k in COLUMNAS_HISTORICO})
+        writer.writeheader()
+        writer.writerows(todas)
 
 
 def main() -> int:
