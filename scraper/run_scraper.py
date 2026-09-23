@@ -30,8 +30,9 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
+from scraper.acuenta_client import AcuentaClientError, obtener_producto_por_sku  # noqa: E402
 from scraper.parsing import filtrar_y_normalizar  # noqa: E402
-from scraper.vtex_client import VtexClientError, buscar_productos  # noqa: E402
+from scraper.vtex_client import Oferta, VtexClientError, buscar_productos  # noqa: E402
 
 RUTA_PRODUCTOS = RAIZ / "data" / "productos.json"
 RUTA_SNAPSHOTS = RAIZ / "data" / "precios"
@@ -51,11 +52,88 @@ def cargar_config() -> dict:
     return json.loads(RUTA_PRODUCTOS.read_text(encoding="utf-8"))
 
 
+def _registrar_resultado(filas: list[dict], hoy: str, clave_cadena: str, clave_categoria: str, ofertas: list[Oferta], cat_config: dict) -> None:
+    resultado = filtrar_y_normalizar(ofertas, cat_config)
+    if resultado is None:
+        print(
+            f"[WARN] {clave_cadena}/{clave_categoria}: sin resultados utiles "
+            f"tras filtrar ({len(ofertas)} ofertas crudas)",
+            file=sys.stderr,
+        )
+        return
+
+    filas.append(
+        {
+            "fecha": hoy,
+            "cadena": clave_cadena,
+            "categoria": clave_categoria,
+            "precio_unitario": resultado.precio_unitario,
+            "unidad": resultado.unidad,
+            "n_muestras": resultado.n_muestras,
+            "productos_usados": resultado.productos_usados,
+        }
+    )
+    print(
+        f"[OK] {clave_cadena}/{clave_categoria}: "
+        f"${resultado.precio_unitario} por {resultado.unidad} "
+        f"(mediana de {resultado.n_muestras} productos)"
+    )
+
+
+def _scrapear_vtex(cadenas: dict, categorias: dict, filas: list[dict], hoy: str) -> None:
+    for clave_cadena, cadena in cadenas.items():
+        cuenta = cadena["cuenta_vtex"]
+        for clave_categoria, cat_config in categorias.items():
+            termino = cat_config["termino_busqueda"]
+            try:
+                ofertas = buscar_productos(cuenta, termino, cantidad=15)
+            except VtexClientError as exc:
+                print(f"[WARN] {clave_cadena}/{clave_categoria}: {exc}", file=sys.stderr)
+                continue
+            _registrar_resultado(filas, hoy, clave_cadena, clave_categoria, ofertas, cat_config)
+
+
+def _scrapear_sku_fijo(cadenas: dict, categorias: dict, filas: list[dict], hoy: str) -> None:
+    """Cadenas sin busqueda utilizable (ej. aCuenta): se consulta una lista
+    fija de SKUs por categoria (data/productos.json) y se lee el JSON-LD de
+    cada pagina de producto individual."""
+    for clave_cadena, cadena in cadenas.items():
+        skus_por_categoria = cadena.get("skus_por_categoria", {})
+        for clave_categoria, cat_config in categorias.items():
+            skus = skus_por_categoria.get(clave_categoria, [])
+            if not skus:
+                print(f"[WARN] {clave_cadena}/{clave_categoria}: sin SKUs configurados", file=sys.stderr)
+                continue
+
+            ofertas: list[Oferta] = []
+            for sku in skus:
+                try:
+                    producto = obtener_producto_por_sku(sku)
+                except AcuentaClientError as exc:
+                    print(f"[WARN] {clave_cadena}/{clave_categoria}/sku={sku}: {exc}", file=sys.stderr)
+                    continue
+                if producto is None:
+                    print(f"[WARN] {clave_cadena}/{clave_categoria}/sku={sku}: SKU sin datos (¿descontinuado?)", file=sys.stderr)
+                    continue
+                if not producto.disponible:
+                    continue
+                # Sin arbol de categorias real (no viene en el JSON-LD): se
+                # deja vacio y el filtro de categoria se salta para esta
+                # oferta (ver parsing._cumple_categoria), confiando en que
+                # el SKU ya fue verificado a mano antes de agregarlo.
+                ofertas.append(Oferta(product_id=producto.sku, nombre=producto.nombre, categorias=[], precio=producto.precio, ean=None))
+
+            _registrar_resultado(filas, hoy, clave_cadena, clave_categoria, ofertas, cat_config)
+
+
 def ejecutar_scraping() -> list[dict]:
     config = cargar_config()
     categorias = config["categorias"]
-    cadenas = {k: v for k, v in config["cadenas"].items() if v.get("metodo") == "automatico"}
-    cadenas_manuales = {k: v for k, v in config["cadenas"].items() if v.get("metodo") == "manual_pendiente"}
+    todas_cadenas = config["cadenas"]
+
+    cadenas_vtex = {k: v for k, v in todas_cadenas.items() if v.get("metodo") == "automatico"}
+    cadenas_sku_fijo = {k: v for k, v in todas_cadenas.items() if v.get("metodo") == "automatico_sku_fijo"}
+    cadenas_manuales = {k: v for k, v in todas_cadenas.items() if v.get("metodo") == "manual_pendiente"}
     if cadenas_manuales:
         print(
             f"[INFO] {len(cadenas_manuales)} cadena(s) quedan fuera del scraper automático "
@@ -68,40 +146,8 @@ def ejecutar_scraping() -> list[dict]:
     filas: list[dict] = []
     hoy = date.today().isoformat()
 
-    for clave_cadena, cadena in cadenas.items():
-        cuenta = cadena["cuenta_vtex"]
-        for clave_categoria, cat_config in categorias.items():
-            termino = cat_config["termino_busqueda"]
-            try:
-                ofertas = buscar_productos(cuenta, termino, cantidad=15)
-            except VtexClientError as exc:
-                print(f"[WARN] {clave_cadena}/{clave_categoria}: {exc}", file=sys.stderr)
-                continue
-
-            resultado = filtrar_y_normalizar(ofertas, cat_config)
-            if resultado is None:
-                print(
-                    f"[WARN] {clave_cadena}/{clave_categoria}: sin resultados utiles "
-                    f"tras filtrar ({len(ofertas)} ofertas crudas)",
-                    file=sys.stderr,
-                )
-                continue
-
-            fila = {
-                "fecha": hoy,
-                "cadena": clave_cadena,
-                "categoria": clave_categoria,
-                "precio_unitario": resultado.precio_unitario,
-                "unidad": resultado.unidad,
-                "n_muestras": resultado.n_muestras,
-                "productos_usados": resultado.productos_usados,
-            }
-            filas.append(fila)
-            print(
-                f"[OK] {clave_cadena}/{clave_categoria}: "
-                f"${resultado.precio_unitario} por {resultado.unidad} "
-                f"(mediana de {resultado.n_muestras} productos)"
-            )
+    _scrapear_vtex(cadenas_vtex, categorias, filas, hoy)
+    _scrapear_sku_fijo(cadenas_sku_fijo, categorias, filas, hoy)
 
     return filas
 

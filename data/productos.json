@@ -27,14 +27,14 @@
       "unidad": "kg",
       "categoria_whitelist": ["Frutas y Verduras"],
       "nombre_incluye": ["palta"],
-      "nombre_excluye": ["shampoo", "acondicionador", "balsamo", "keratin", "alino", "salsa", "mascarilla", "aprox", " un."]
+      "nombre_excluye": ["shampoo", "acondicionador", "balsamo", "keratin", "alino", "salsa", "mascarilla"]
     },
     "tomate": {
       "termino_busqueda": "tomate granel",
       "unidad": "kg",
       "categoria_whitelist": ["Frutas y Verduras"],
       "nombre_incluye": ["tomate"],
-      "nombre_excluye": ["salsa", "pure", "deshidratado", "seco", "conserva", "aprox", " un."]
+      "nombre_excluye": ["salsa", "pure", "deshidratado", "seco", "conserva"]
     }
   },
   "_nota_enfoque": "El indice compara CADENAS (Lider, Jumbo, Unimarc, Santa Isabel, Mayorista 10, aCuenta), no regiones. Ver docs/LIMITACION_REGIONAL.md para la razon del cambio de foco.",
@@ -59,36 +59,47 @@
       "nombre": "Líder",
       "url": "https://www.lider.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "Por política del sitio: su robots.txt le prohíbe a cualquier bot leer páginas con precio.",
       "razon": "robots.txt de lider.cl deshabilita explícitamente /search*, /catalogo/product*, /catalogo/category*, /supermercado/product*, /supermercado/category* y /supermercado* para cualquier bot genérico (solo permite Googlebot). Se respeta esa señal: no se scrapea, ni con cliente HTTP simple ni con navegador automatizado (Playwright habría sido evasión, no cumplimiento). Precio pendiente de captura manual."
     },
     "unimarc": {
       "nombre": "Unimarc",
       "url": "https://www.unimarc.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "El sitio bloquea automáticamente a cualquier bot (protección anti-bot tipo Akamai), incluso para leer su robots.txt.",
       "razon": "Bloqueo activo tipo Akamai: incluso /robots.txt devuelve 403. No se intenta evadir la protección anti-bot. Precio pendiente de captura manual."
     },
     "mayorista10": {
       "nombre": "Mayorista 10",
       "url": "https://www.mayorista10.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "Mismo bloqueo anti-bot que Unimarc (misma empresa, SMU).",
       "razon": "Mismo bloqueo Akamai que Unimarc (ambas marcas de SMU, mismo backend/protección). Precio pendiente de captura manual."
     },
     "acuenta": {
       "nombre": "SuperBodega aCuenta",
       "url": "https://www.acuenta.cl",
-      "metodo": "manual_pendiente",
-      "razon": "robots.txt SÍ permite scrapear catálogo/búsqueda, pero el sitio es una SPA (Instaleap) que arma los resultados vía llamadas internas (GraphQL) no descubribles con un cliente HTTP simple, sin ejecutar JavaScript. Requeriría un navegador headless para encontrar la API; queda como candidato futuro, no evasión de ninguna protección (robots.txt lo permite). Precio pendiente de captura manual."
+      "metodo": "automatico_sku_fijo",
+      "nota_metodo": "Su robots.txt SÍ permite leer catálogo, pero la búsqueda es una app de una sola página (Instaleap) que no responde nada útil sin ejecutar JavaScript. Cada página de producto individual, en cambio, trae el precio embebido en HTML plano como JSON-LD (schema.org/Product) — datos puestos ahí a propósito para que buscadores los lean, exactamente el mismo mecanismo que usa Google Shopping. Por eso se scrapea por SKU fijo (encontrados manualmente, no por búsqueda en vivo) en vez de por término de búsqueda como Jumbo/Santa Isabel. Limitación: si SMU descontinúa alguno de estos SKU la categoría queda sin dato hasta actualizar la lista a mano.",
+      "skus_por_categoria": {
+        "salchicha": ["4067", "4131", "884847"],
+        "mayonesa": ["583720"],
+        "palta": ["887775"],
+        "tomate": ["327604"]
+      }
     },
     "alvi": {
       "nombre": "Alvi",
       "url": "https://www.alvi.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "Mismo bloqueo anti-bot que Unimarc y Mayorista 10 (misma empresa, SMU).",
       "razon": "Mismo bloqueo Akamai que Unimarc y Mayorista 10 (marca SMU). Precio pendiente de captura manual."
     },
     "tottus": {
       "nombre": "Tottus",
       "url": "https://www.tottus.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "Su catálogo no responde de forma estable (error del servidor); no se pudo acceder a los precios.",
       "razon": "robots.txt permite scrapear catálogo, pero el sitio no corre en VTEX (a diferencia de Jumbo/Santa Isabel) y el endpoint probado devuelve 503 de forma consistente. Queda como candidato futuro para reverse-engineering de su API real. Precio pendiente de captura manual."
     }
   }

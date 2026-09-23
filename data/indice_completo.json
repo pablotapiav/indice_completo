@@ -3,23 +3,34 @@
   "_metodologia": "docs/METODOLOGIA.md",
   "_nota_regional": "docs/LIMITACION_REGIONAL.md",
   "base_periodo": "2026-09-23",
-  "costo_racion_base_clp": 1227.79,
-  "generado_en": "2026-09-23T19:30:28.306893+00:00",
+  "costo_racion_base_clp": 1008.09,
+  "generado_en": "2026-09-23T19:54:46.735215+00:00",
   "serie_nacional": [
     {
       "fecha": "2026-09-23",
-      "precio_completo_clp": 1227.79,
+      "precio_completo_clp": 1008.09,
       "indice": 100.0
     }
   ],
   "cadenas": [
     {
+      "clave": "acuenta",
+      "nombre": "SuperBodega aCuenta",
+      "url": "https://www.acuenta.cl",
+      "metodo": "automatico_sku_fijo",
+      "razon_corta": null,
+      "razon_pendiente": null,
+      "precio_completo_clp": 567.11,
+      "fecha": "2026-09-23"
+    },
+    {
       "clave": "jumbo",
       "nombre": "Jumbo",
       "url": "https://www.jumbo.cl",
       "metodo": "automatico",
+      "razon_corta": null,
       "razon_pendiente": null,
-      "precio_completo_clp": 1147.54,
+      "precio_completo_clp": 1149.12,
       "fecha": "2026-09-23"
     },
     {
@@ -27,6 +38,7 @@
       "nombre": "Santa Isabel",
       "url": "https://www.santaisabel.cl",
       "metodo": "automatico",
+      "razon_corta": null,
       "razon_pendiente": null,
       "precio_completo_clp": 1308.04,
       "fecha": "2026-09-23"
@@ -36,6 +48,7 @@
       "nombre": "Líder",
       "url": "https://www.lider.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "Por política del sitio: su robots.txt le prohíbe a cualquier bot leer páginas con precio.",
       "razon_pendiente": "robots.txt de lider.cl deshabilita explícitamente /search*, /catalogo/product*, /catalogo/category*, /supermercado/product*, /supermercado/category* y /supermercado* para cualquier bot genérico (solo permite Googlebot). Se respeta esa señal: no se scrapea, ni con cliente HTTP simple ni con navegador automatizado (Playwright habría sido evasión, no cumplimiento). Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null
@@ -45,6 +58,7 @@
       "nombre": "Unimarc",
       "url": "https://www.unimarc.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "El sitio bloquea automáticamente a cualquier bot (protección anti-bot tipo Akamai), incluso para leer su robots.txt.",
       "razon_pendiente": "Bloqueo activo tipo Akamai: incluso /robots.txt devuelve 403. No se intenta evadir la protección anti-bot. Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null
@@ -54,16 +68,8 @@
       "nombre": "Mayorista 10",
       "url": "https://www.mayorista10.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "Mismo bloqueo anti-bot que Unimarc (misma empresa, SMU).",
       "razon_pendiente": "Mismo bloqueo Akamai que Unimarc (ambas marcas de SMU, mismo backend/protección). Precio pendiente de captura manual.",
-      "precio_completo_clp": null,
-      "fecha": null
-    },
-    {
-      "clave": "acuenta",
-      "nombre": "SuperBodega aCuenta",
-      "url": "https://www.acuenta.cl",
-      "metodo": "manual_pendiente",
-      "razon_pendiente": "robots.txt SÍ permite scrapear catálogo/búsqueda, pero el sitio es una SPA (Instaleap) que arma los resultados vía llamadas internas (GraphQL) no descubribles con un cliente HTTP simple, sin ejecutar JavaScript. Requeriría un navegador headless para encontrar la API; queda como candidato futuro, no evasión de ninguna protección (robots.txt lo permite). Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null
     },
@@ -72,6 +78,7 @@
       "nombre": "Alvi",
       "url": "https://www.alvi.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "Mismo bloqueo anti-bot que Unimarc y Mayorista 10 (misma empresa, SMU).",
       "razon_pendiente": "Mismo bloqueo Akamai que Unimarc y Mayorista 10 (marca SMU). Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null
@@ -81,6 +88,7 @@
       "nombre": "Tottus",
       "url": "https://www.tottus.cl",
       "metodo": "manual_pendiente",
+      "razon_corta": "Su catálogo no responde de forma estable (error del servidor); no se pudo acceder a los precios.",
       "razon_pendiente": "robots.txt permite scrapear catálogo, pero el sitio no corre en VTEX (a diferencia de Jumbo/Santa Isabel) y el endpoint probado devuelve 503 de forma consistente. Queda como candidato futuro para reverse-engineering de su API real. Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null

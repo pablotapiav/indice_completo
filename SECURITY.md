@@ -18,17 +18,24 @@ una API key o una credencial en un PR, es un error: repórtalo como issue.
 - **Solo lectura de catálogo público.** Nunca se toca carrito, cuenta,
   checkout ni ningún endpoint que requiera sesión.
 - **Se respeta `robots.txt`, siempre, incluso cuando sería técnicamente
-  posible saltárselo.** Seis de las ocho cadenas del comparador quedaron
+  posible saltárselo.** Cinco de las ocho cadenas del comparador quedaron
   fuera del scraper automático — Líder (`robots.txt` lo deshabilita
   explícitamente), Unimarc/Mayorista 10/Alvi (bloqueo Akamai activo,
-  incluso en `/robots.txt`), SuperBodega aCuenta (robots.txt lo permite,
-  pero es una SPA sin API descubrible sin ejecutar JavaScript) y Tottus
-  (503 consistente, no corre en VTEX) — ver `docs/METODOLOGIA.md` sección 3
-  para el detalle de cada una. **No se usa un navegador automatizado
-  (Playwright ni similar) para sortear estas protecciones**: si un sitio
-  bloquea peticiones simples, usar una herramienta más sofisticada
-  específicamente por eso es evasión, no cumplimiento, y este proyecto no
-  lo hace — ni siquiera para "solo probar algo".
+  incluso en `/robots.txt`) y Tottus (503 consistente, no corre en VTEX) —
+  ver `docs/METODOLOGIA.md` sección 3 para el detalle de cada una. **No se
+  usa un navegador automatizado (Playwright ni similar) para sortear estas
+  protecciones**: si un sitio bloquea peticiones simples, usar una
+  herramienta más sofisticada específicamente por eso es evasión, no
+  cumplimiento, y este proyecto no lo hace — ni siquiera para "solo probar
+  algo".
+- **SuperBodega aCuenta sí se scrapea**, pero no vía búsqueda (su
+  `robots.txt` lo permitiría, pero es una SPA sin API descubrible sin
+  ejecutar JavaScript): se lee el bloque JSON-LD (`schema.org/Product`) que
+  cada página de producto trae embebido en el HTML — metadata puesta ahí a
+  propósito para que buscadores la lean, el mismo mecanismo que usa Google
+  Shopping. No requiere JavaScript, no requiere sesión, y no es una
+  protección que se esté evadiendo: es información publicada para ser leída
+  por máquinas. Detalle en `docs/METODOLOGIA.md` sección 3.
 - Los precios de las cadenas bloqueadas, si alguien los aporta, se cargan a
   mano en `data/precios_manuales_cadena.csv` — eso es una persona
   consultando un sitio como cualquier visitante, no un bot, y no está

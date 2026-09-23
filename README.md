@@ -26,12 +26,14 @@ SuperBodega aCuenta, Alvi y Tottus.
 ## Qué hace el repo
 
 1. **Scraper** (`scraper/`) — lee el catálogo público de Jumbo y Santa
-   Isabel (ambas sobre VTEX), busca cada insumo, filtra resultados
+   Isabel (ambas sobre VTEX, buscando por texto) y de SuperBodega aCuenta
+   (vía JSON-LD de páginas de producto individuales, con una lista fija de
+   SKU porque su búsqueda solo funciona con JavaScript). Filtra resultados
    irrelevantes y calcula un precio normalizado por categoría (mediana entre
    productos comparables). Solo lee catálogo público, nunca toca carrito,
    cuenta ni checkout. El resto de las cadenas (Líder, Unimarc, Mayorista 10,
-   aCuenta, Alvi, Tottus) bloquean el scraping por robots.txt o protección
-   anti-bot — quedan con precio pendiente de captura manual, ver
+   Alvi, Tottus) bloquean el scraping por robots.txt o protección anti-bot —
+   quedan con precio pendiente de captura manual, ver
    [SECURITY.md](SECURITY.md) y [docs/METODOLOGIA.md](docs/METODOLOGIA.md)
    para el detalle exacto de cada una.
 2. **Índice** (`index/`) — con esos precios arma el **Índice del Completo**:
@@ -65,7 +67,7 @@ decisión deliberada para minimizar riesgo de cadena de suministro en un repo
 público, ver [SECURITY.md](SECURITY.md)).
 
 ```bash
-python -m scraper.run_scraper      # scrapea Jumbo y Santa Isabel, guarda un snapshot
+python -m scraper.run_scraper      # scrapea Jumbo, Santa Isabel y aCuenta, guarda un snapshot
 python -m index.compute_index      # recalcula el Índice del Completo (base 100)
 python -m index.fetch_ipc_oficial  # trae el IPC oficial y lo alinea a la misma base
 ```

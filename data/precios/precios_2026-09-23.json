@@ -1,5 +1,5 @@
 {
-  "generado_en": "2026-09-23T19:30:27.941187+00:00",
+  "generado_en": "2026-09-23T19:54:46.503054+00:00",
   "filas": [
     {
       "fecha": "2026-09-23",
@@ -18,23 +18,24 @@
       "fecha": "2026-09-23",
       "cadena": "jumbo",
       "categoria": "mayonesa",
-      "precio_unitario": 472.37,
+      "precio_unitario": 482.89,
       "unidad": "100g",
-      "n_muestras": 13,
+      "n_muestras": 14,
       "productos_usados": [
+        "Mayonesa Alacena 475 g",
         "Mayonesa Gourmet 300 g",
         "Mayonesa Tradicional 800 g",
-        "Mayonesa Alacena 475 g",
         "Mayonesa Tradicional 400 g",
         "Mayonesa Regular 950 g",
         "Mayonesa Regular 760 g",
         "Mayonesa Light 760 g",
         "Mayonesa Máxima 816 g",
-        "Mayonesa Hellmann's Sachet 93 g",
-        "Mayonesa Light Cuisine 950 g",
         "Mayonesa Hellmann's Doypack 800 g",
         "Mayonesa Hellmann's Doypack 1 kg",
-        "Mayonesa de Soya Eggless 352 ml"
+        "Mayonesa de Soya Eggless 352 ml",
+        "Mayonesa Hellmann's Doypack 233 g",
+        "Mayonesa Hellmann's Sachet 93 g",
+        "Mayonesa Light Cuisine 950 g"
       ]
     },
     {
@@ -124,6 +125,52 @@
       "n_muestras": 1,
       "productos_usados": [
         "Tomate Cóctel Variedades Granel"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "acuenta",
+      "categoria": "salchicha",
+      "precio_unitario": 459.0,
+      "unidad": "100g",
+      "n_muestras": 3,
+      "productos_usados": [
+        "Salchichas Sureñas Display (20 Un) 1 Kg PF",
+        "Salchichas de Pollo Display (20 Un) 1 Kg Montina",
+        "Salchicha Sureña 20 Un 1000 g San Jorge"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "acuenta",
+      "categoria": "mayonesa",
+      "precio_unitario": 248.75,
+      "unidad": "100g",
+      "n_muestras": 1,
+      "productos_usados": [
+        "Mayonesa Regular Doypack 800 g Acuenta"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "acuenta",
+      "categoria": "palta",
+      "precio_unitario": 3000.0,
+      "unidad": "kg",
+      "n_muestras": 1,
+      "productos_usados": [
+        "Palta Hass Granel 500 g (2 a 3 un aprox) Multi Marca"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "acuenta",
+      "categoria": "tomate",
+      "precio_unitario": 1950.0,
+      "unidad": "kg",
+      "n_muestras": 1,
+      "productos_usados": [
+        "Tomate Larga Vida Granel 500 g (2 a 3 un aprox) Multi Marca"
       ]
     }
   ]

@@ -46,15 +46,28 @@ el día base queda registrado en `data/indice_completo.json` →
 
 ## 3. De dónde salen los precios
 
-Se scrapea el **catálogo público de e-commerce** de dos cadenas que corren
-sobre la plataforma VTEX (Jumbo y Santa Isabel), golpeando el endpoint
-`api/catalog_system/pub/products/search` de sus cuentas VTEX directamente —
-el mismo mecanismo que usan comparadores de precios de terceros. Es JSON de
-solo lectura, sin login, sin carrito, sin datos de ninguna persona.
+Tres cadenas se scrapean en automático, por dos vías distintas:
+
+- **Jumbo y Santa Isabel** corren sobre la plataforma VTEX: se golpea el
+  endpoint `api/catalog_system/pub/products/search` de sus cuentas VTEX
+  directamente — el mismo mecanismo que usan comparadores de precios de
+  terceros. Es JSON de solo lectura, sin login, sin carrito.
+- **SuperBodega aCuenta** no tiene una API de búsqueda alcanzable sin
+  ejecutar JavaScript (ver más abajo), pero cada página de producto trae el
+  precio embebido en el HTML como **JSON-LD** (`schema.org/Product`) — el
+  mismo tipo de dato estructurado que usa Google Shopping para mostrar
+  precios en resultados de búsqueda, puesto ahí a propósito para que
+  buscadores lo lean. `scraper/acuenta_client.py` solo lee ese bloque, en
+  una lista fija de SKUs (`data/productos.json` → `acuenta` →
+  `skus_por_categoria`) porque, a diferencia de Jumbo/Santa Isabel, no hay
+  forma de buscar por texto sin un navegador. Si SMU descontinúa alguno de
+  esos SKU esa categoría queda sin dato hasta que alguien actualice la
+  lista a mano — es una limitación conocida, no un bug silencioso.
 
 **El resto de las cadenas del comparador quedan con precio pendiente de
-captura manual** (ver `data/productos.json` → `cadenas`, campo `metodo` y
-`razon`, con el detalle exacto de cada una):
+captura manual** (ver `data/productos.json` → `cadenas`, campos `metodo`,
+`razon_corta` y `razon`, con el detalle exacto de cada una — el sitio
+muestra `razon_corta` al pasar el mouse sobre "por qué no hay dato"):
 
 - **Líder**: su `robots.txt` deshabilita explícitamente `/search*`,
   `/catalogo/product*`, `/catalogo/category*` y rutas equivalentes para
@@ -67,20 +80,16 @@ captura manual** (ver `data/productos.json` → `cadenas`, campo `metodo` y
 - **Unimarc, Mayorista 10 y Alvi** (las tres marcas de SMU): su sitio
   bloquea con Akamai incluso la lectura de `/robots.txt` (403). No se
   intenta evadir esa protección.
-- **SuperBodega aCuenta**: su `robots.txt` sí permite scrapear catálogo,
-  pero el sitio es una SPA (plataforma Instaleap) que arma los resultados
-  vía llamadas internas no descubribles con un cliente HTTP simple sin
-  ejecutar JavaScript. Queda como candidato para una futura versión con
-  navegador headless — no es una protección que se esté evadiendo, es una
-  limitación técnica del scraper actual.
 - **Tottus**: el endpoint de catálogo devolvió 503 de forma consistente en
   las pruebas y no corre en VTEX; queda fuera hasta encontrar su API real.
 
 Este es, a propósito, un criterio conservador: se prefiere cubrir menos
 cadenas de forma automática pero solo por vías que las propias tiendas no
-restringen. Las cadenas pendientes siguen apareciendo en el comparador del
-sitio (con precio en blanco y la razón visible) en vez de desaparecer de la
-lista — la ausencia de dato es información, no algo que esconder.
+restringen — ninguna cadena de esta lista se scrapea evadiendo una
+protección activa. Las cadenas pendientes siguen apareciendo en el
+comparador del sitio (con precio en blanco y la razón visible) en vez de
+desaparecer de la lista — la ausencia de dato es información, no algo que
+esconder.
 
 ## 4. Por qué mediana y no un SKU fijo
 

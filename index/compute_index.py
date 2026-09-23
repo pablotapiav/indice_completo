@@ -165,6 +165,7 @@ def main() -> int:
                 "nombre": meta["nombre"],
                 "url": meta.get("url"),
                 "metodo": meta.get("metodo"),
+                "razon_corta": meta.get("razon_corta"),
                 "razon_pendiente": meta.get("razon"),
                 "precio_completo_clp": ultimo["precio_completo_clp"] if ultimo else None,
                 "fecha": ultimo["fecha"] if ultimo else None,

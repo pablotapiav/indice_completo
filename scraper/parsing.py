@@ -36,6 +36,11 @@ def extraer_gramos(nombre: str) -> float | None:
 def _cumple_categoria(oferta: Oferta, whitelist: list[str]) -> bool:
     if not whitelist:
         return True
+    if not oferta.categorias:
+        # La fuente no entrega arbol de categorias (ej. aCuenta, via JSON-LD
+        # de pagina de producto) - se confia en los filtros de nombre y en
+        # que el SKU ya fue verificado a mano antes de agregarse.
+        return True
     ruta = " > ".join(oferta.categorias).lower()
     return any(w.lower() in ruta for w in whitelist)
 
@@ -80,12 +85,18 @@ def filtrar_y_normalizar(
             continue
 
         if unidad == "kg":
-            # Productos a granel (palta/tomate) ya vienen listados por kg en
-            # el catalogo chileno; si el nombre trae un gramaje explicito
-            # (ej. "Malla 1 kg") se usa ese para normalizar.
+            # Si el nombre trae un gramaje explicito (ej. "Malla 1 kg", o
+            # "Granel 500 g (2 a 3 un aprox)") se usa siempre ese numero para
+            # normalizar - es confiable independiente de si ademas menciona
+            # un conteo de unidades aproximado. Solo cuando NO hay gramaje
+            # explicito se recurre a la convencion chilena de que "Granel"
+            # ya viene listado por kg - y esa convencion se descarta si el
+            # nombre sugiere que el precio es por unidad/bolsa (ambiguo).
             gramos = extraer_gramos(nombre_lower)
             if gramos:
                 precio_kg = oferta.precio / gramos * 1000
+            elif re.search(r"\bun\.?\b|\bunidad(es)?\b", nombre_lower):
+                continue  # ambiguo: no se sabe si el precio es por kg o por bolsa/unidad
             else:
                 precio_kg = oferta.precio
             normalizados.append((precio_kg, oferta.nombre))

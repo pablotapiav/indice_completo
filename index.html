@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Índice del Completo</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="description" content="Cuánto cuesta armar un completo italiano (vienesa, mayonesa, palta, tomate) en Líder, Jumbo, Unimarc, Santa Isabel y otras cadenas de Chile, comparado con el IPC oficial. Base 100.">
 <style>
   .viz-root {
@@ -392,30 +393,77 @@
 
   // ---------- comparador por cadena ----------
   function renderCadenas(container, cadenas) {
+    container.innerHTML = "";
     var conDato = cadenas.filter(function (c) { return c.precio_completo_clp !== null; });
     var sinDato = cadenas.filter(function (c) { return c.precio_completo_clp === null; });
     var maxPrecio = conDato.length
       ? Math.max.apply(null, conDato.map(function (c) { return c.precio_completo_clp; }))
       : 1;
 
-    var html = "";
+    var tooltip = document.getElementById("tooltip");
+    function mostrarTooltip(el, texto) {
+      var rect = el.getBoundingClientRect();
+      tooltip.style.opacity = 1;
+      tooltip.style.left = rect.left + rect.width / 2 + window.scrollX + "px";
+      tooltip.style.top = rect.top + window.scrollY - 8 + "px";
+      tooltip.style.whiteSpace = "normal";
+      tooltip.style.maxWidth = "260px";
+      tooltip.innerHTML = "<strong>¿Por qué no hay dato?</strong><br>" + texto;
+    }
+    function ocultarTooltip() {
+      tooltip.style.opacity = 0;
+      tooltip.style.whiteSpace = "";
+      tooltip.style.maxWidth = "";
+    }
+
     conDato.forEach(function (c) {
       var pct = Math.max((c.precio_completo_clp / maxPrecio) * 100, 4);
-      html += '<div class="cadena-row">' +
+      var row = document.createElement("div");
+      row.className = "cadena-row";
+      row.innerHTML =
         '<div class="cadena-nombre"><a href="' + c.url + '" target="_blank" rel="noopener">' + c.nombre + "</a></div>" +
         '<div class="cadena-bar-track"><div class="cadena-bar-fill" style="width:' + pct.toFixed(1) + '%">' +
-        '<span class="valor">' + fmtCLP(c.precio_completo_clp) + "</span></div></div>" +
-        "</div>";
+        '<span class="valor">' + fmtCLP(c.precio_completo_clp) + "</span></div></div>";
+      container.appendChild(row);
     });
+
     sinDato.forEach(function (c) {
-      html += '<div class="cadena-row">' +
-        '<div class="cadena-nombre"><a href="' + c.url + '" target="_blank" rel="noopener">' + c.nombre + "</a></div>" +
-        '<div class="cadena-pendiente">' +
-        '<span class="badge">pendiente</span>' +
-        '<span class="razon" title="' + (c.razon_pendiente || "").replace(/"/g, "&quot;") + '">por qué no hay dato →</span>' +
-        "</div></div>";
+      var row = document.createElement("div");
+      row.className = "cadena-row";
+
+      var nombreDiv = document.createElement("div");
+      nombreDiv.className = "cadena-nombre";
+      var link = document.createElement("a");
+      link.href = c.url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = c.nombre;
+      nombreDiv.appendChild(link);
+
+      var pendienteDiv = document.createElement("div");
+      pendienteDiv.className = "cadena-pendiente";
+
+      var badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = "pendiente";
+
+      var razonTrigger = document.createElement("span");
+      razonTrigger.className = "razon";
+      razonTrigger.textContent = "por qué no hay dato →";
+      razonTrigger.tabIndex = 0;
+      razonTrigger.setAttribute("role", "button");
+      var texto = c.razon_corta || "No se pudo obtener el precio de forma automática.";
+      razonTrigger.addEventListener("mouseenter", function () { mostrarTooltip(razonTrigger, texto); });
+      razonTrigger.addEventListener("mouseleave", ocultarTooltip);
+      razonTrigger.addEventListener("focus", function () { mostrarTooltip(razonTrigger, texto); });
+      razonTrigger.addEventListener("blur", ocultarTooltip);
+
+      pendienteDiv.appendChild(badge);
+      pendienteDiv.appendChild(razonTrigger);
+      row.appendChild(nombreDiv);
+      row.appendChild(pendienteDiv);
+      container.appendChild(row);
     });
-    container.innerHTML = html;
   }
 
   // ---------- carga de datos ----------
