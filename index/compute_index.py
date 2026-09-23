@@ -101,12 +101,42 @@ def cargar_precios_por_cadena() -> dict[str, dict[str, dict[str, float]]]:
     return resultado
 
 
+def calcular_desglose(precios_por_categoria: dict[str, float], gramos_racion: dict[str, float]) -> list[dict]:
+    """Cuanto aporta cada insumo al costo de la racion, dado un precio por
+    categoria ya resuelto (precio de una cadena puntual, o promedio entre
+    varias para la serie nacional)."""
+    desglose = []
+    for categoria, gramos in gramos_racion.items():
+        precio_unitario = precios_por_categoria.get(categoria)
+        if precio_unitario is None:
+            continue
+        unidad = "kg" if categoria in CATEGORIAS_UNIDAD_KG else "100g"
+        factor = gramos / 1000 if unidad == "kg" else gramos / 100
+        desglose.append(
+            {
+                "categoria": categoria,
+                "precio_unitario": precio_unitario,
+                "unidad": unidad,
+                "gramos_racion": gramos,
+                "aporte_clp": round(precio_unitario * factor, 2),
+            }
+        )
+    return desglose
+
+
 def construir_serie_cadena(fechas_ordenadas: list[str], precios_cadena: dict[str, dict[str, float]], gramos_racion: dict[str, float]) -> list[dict]:
     serie = []
     for fecha in fechas_ordenadas:
-        costo = costo_racion(precios_cadena.get(fecha, {}), gramos_racion)
+        precios_fecha = precios_cadena.get(fecha, {})
+        costo = costo_racion(precios_fecha, gramos_racion)
         if costo is not None:
-            serie.append({"fecha": fecha, "precio_completo_clp": costo})
+            serie.append(
+                {
+                    "fecha": fecha,
+                    "precio_completo_clp": costo,
+                    "desglose": calcular_desglose(precios_fecha, gramos_racion),
+                }
+            )
     return serie
 
 
@@ -133,24 +163,35 @@ def main() -> int:
 
     # Serie nacional de referencia: promedio del costo de la racion entre las
     # cadenas que tienen dato completo cada fecha (se recalcula con las
-    # cadenas disponibles ese dia, no exige que todas tengan historico).
+    # cadenas disponibles ese dia, no exige que todas tengan historico). El
+    # desglose nacional promedia el precio POR CATEGORIA entre esas mismas
+    # cadenas, para poder mostrar "como se compone" el punto nacional al
+    # pasar el mouse sobre el grafico.
     costo_por_fecha: dict[str, list[float]] = defaultdict(list)
-    for serie in series_por_cadena.values():
+    categoria_por_fecha: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
+    for cadena, serie in series_por_cadena.items():
         for punto in serie:
             costo_por_fecha[punto["fecha"]].append(punto["precio_completo_clp"])
+            for item in punto["desglose"]:
+                categoria_por_fecha[punto["fecha"]][item["categoria"]].append(item["precio_unitario"])
 
     fechas_con_dato = sorted(costo_por_fecha.keys())
     costo_promedio_por_fecha = {f: round(sum(v) / len(v), 2) for f, v in costo_por_fecha.items()}
     costo_base = costo_promedio_por_fecha[fechas_con_dato[0]]
 
-    serie_nacional = [
-        {
-            "fecha": fecha,
-            "precio_completo_clp": costo_promedio_por_fecha[fecha],
-            "indice": round(100 * costo_promedio_por_fecha[fecha] / costo_base, 2),
+    serie_nacional = []
+    for fecha in fechas_con_dato:
+        precios_promedio_categoria = {
+            cat: round(sum(valores) / len(valores), 2) for cat, valores in categoria_por_fecha[fecha].items()
         }
-        for fecha in fechas_con_dato
-    ]
+        serie_nacional.append(
+            {
+                "fecha": fecha,
+                "precio_completo_clp": costo_promedio_por_fecha[fecha],
+                "indice": round(100 * costo_promedio_por_fecha[fecha] / costo_base, 2),
+                "desglose": calcular_desglose(precios_promedio_categoria, gramos_racion),
+            }
+        )
 
     # Snapshot "hoy" por cadena, para el comparador. Incluye TODAS las cadenas
     # definidas en productos.json (incluidas las pendientes de captura manual,
@@ -159,27 +200,6 @@ def main() -> int:
     for clave, meta in config["cadenas"].items():
         serie = series_por_cadena.get(clave, [])
         ultimo = serie[-1] if serie else None
-
-        desglose = None
-        if ultimo:
-            precios_categoria = precios_por_cadena.get(clave, {}).get(ultimo["fecha"], {})
-            desglose = []
-            for categoria, gramos in gramos_racion.items():
-                precio_unitario = precios_categoria.get(categoria)
-                if precio_unitario is None:
-                    continue
-                unidad = "kg" if categoria in CATEGORIAS_UNIDAD_KG else "100g"
-                factor = gramos / 1000 if unidad == "kg" else gramos / 100
-                desglose.append(
-                    {
-                        "categoria": categoria,
-                        "precio_unitario": precio_unitario,
-                        "unidad": unidad,
-                        "gramos_racion": gramos,
-                        "aporte_clp": round(precio_unitario * factor, 2),
-                    }
-                )
-
         cadenas_catalogo.append(
             {
                 "clave": clave,
@@ -190,7 +210,8 @@ def main() -> int:
                 "razon_pendiente": meta.get("razon"),
                 "precio_completo_clp": ultimo["precio_completo_clp"] if ultimo else None,
                 "fecha": ultimo["fecha"] if ultimo else None,
-                "desglose": desglose,
+                "desglose": ultimo["desglose"] if ultimo else None,
+                "serie": serie,
             }
         )
     cadenas_catalogo.sort(key=lambda c: (c["precio_completo_clp"] is None, c["precio_completo_clp"] or 0))

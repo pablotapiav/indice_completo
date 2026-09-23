@@ -19,6 +19,7 @@
     --border:         rgba(11,11,11,0.10);
     --series-1:       #2a78d6; /* Índice del Completo */
     --series-2:       #eb6834; /* IPC oficial INE */
+    --series-3:       #1baf7a; /* 3ra cadena en la vista "por cadena" */
     --good:           #006300;
     --critical:       #d03b3b;
   }
@@ -35,6 +36,7 @@
       --border:         rgba(255,255,255,0.10);
       --series-1:       #3987e5;
       --series-2:       #d95926;
+      --series-3:       #199e70;
       --good:           #0ca30c;
       --critical:       #e66767;
     }
@@ -51,6 +53,7 @@
     --border:         rgba(255,255,255,0.10);
     --series-1:       #3987e5;
     --series-2:       #d95926;
+    --series-3:       #199e70;
     --good:           #0ca30c;
     --critical:       #e66767;
   }
@@ -83,6 +86,18 @@
   }
   .card h2 { font-size: 15px; margin: 0 0 2px; font-weight: 600; }
   .card .card-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  .view-toggle {
+    display: inline-flex; background: var(--gridline); border-radius: 999px; padding: 3px;
+    flex: 0 0 auto;
+  }
+  .view-toggle button {
+    border: none; background: transparent; font: inherit; font-size: 12.5px; font-weight: 500;
+    color: var(--text-secondary); padding: 6px 13px; border-radius: 999px; cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .view-toggle button.activo { background: var(--surface-1); color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
   .stat-row { display: flex; gap: 14px; flex-wrap: wrap; }
   .stat-tile {
@@ -103,10 +118,12 @@
   svg text { fill: var(--text-muted); font-size: 11px; font-family: inherit; }
   .gridline { stroke: var(--gridline); stroke-width: 1; }
   .baseline { stroke: var(--baseline); stroke-width: 1; }
-  .line-1 { stroke: var(--series-1); stroke-width: 2; fill: none; stroke-linecap: round; }
-  .line-2 { stroke: var(--series-2); stroke-width: 2; fill: none; stroke-linecap: round; }
+  .line-1 { stroke: var(--series-1); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .line-2 { stroke: var(--series-2); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .area-1 { fill: url(#gradienteIdC); }
   .dot-1 { fill: var(--series-1); }
   .dot-2 { fill: var(--series-2); }
+  .marcador-hotdog { font-size: 15px; text-anchor: middle; dominant-baseline: central; cursor: pointer; }
   .crosshair { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
   .tooltip {
     position: absolute; pointer-events: none; background: rgba(20, 19, 17, 0.92);
@@ -187,9 +204,17 @@
     </header>
 
     <section class="card">
-      <h2>Índice del Completo (IdC) vs. IPC oficial</h2>
-      <div class="card-sub">Ambas series en la misma base 100, para comparar variación acumulada — no niveles.</div>
-      <div class="legend">
+      <div class="card-header">
+        <div>
+          <h2 id="chartTitulo">Índice del Completo (IdC) vs. IPC oficial</h2>
+          <div class="card-sub" id="chartSubtitulo">Ambas series en la misma base 100, para comparar variación acumulada — no niveles.</div>
+        </div>
+        <div class="view-toggle" id="viewToggle">
+          <button type="button" data-vista="ipc" class="activo">Vs. IPC</button>
+          <button type="button" data-vista="cadenas">Por cadena</button>
+        </div>
+      </div>
+      <div class="legend" id="chartLegend">
         <span class="item"><span class="swatch" style="background:var(--series-1)"></span>Índice del Completo</span>
         <span class="item"><span class="swatch" style="background:var(--series-2)"></span>IPC oficial (INE)</span>
       </div>
@@ -271,20 +296,55 @@
     return el;
   }
 
-  // ---------- chart de líneas (>=2 puntos) o comparación de stat-tiles (1 punto) ----------
+  var EMOJI_CATEGORIA = { salchicha: "🌭", mayonesa: "🧴", palta: "🥑", tomate: "🍅" };
+  var NOMBRE_CATEGORIA = { salchicha: "Vienesa", mayonesa: "Mayonesa", palta: "Palta", tomate: "Tomate" };
+  // Orden fijo (no por ranking/precio) para que el color siga siempre a la
+  // misma cadena, nunca a su posición en el ranking del día.
+  var COLOR_CADENA = { jumbo: "var(--series-1)", santaisabel: "var(--series-2)", acuenta: "var(--series-3)" };
+
+  function htmlDesglose(titulo, desglose, totalClp) {
+    var filas = (desglose || []).map(function (item) {
+      var emoji = EMOJI_CATEGORIA[item.categoria] || "•";
+      var nombre = NOMBRE_CATEGORIA[item.categoria] || item.categoria;
+      var precioUnit = fmtCLP(item.precio_unitario) + "/" + item.unidad;
+      return '<div class="fila"><span>' + emoji + " " + nombre +
+        ' <span style="opacity:.65">(' + item.gramos_racion + "g a " + precioUnit + ")</span></span>" +
+        "<span>" + fmtCLP(item.aporte_clp) + "</span></div>";
+    }).join("");
+    return "<strong>" + titulo + "</strong>" + filas +
+      '<div class="total"><span>Total ración</span><span>' + fmtCLP(totalClp) + "</span></div>";
+  }
+
+  var tooltipGlobal = document.getElementById("tooltip");
+  function mostrarTooltip(x, y, htmlContenido) {
+    tooltipGlobal.style.opacity = 1;
+    tooltipGlobal.style.left = x + "px";
+    tooltipGlobal.style.top = y + "px";
+    tooltipGlobal.style.whiteSpace = "normal";
+    tooltipGlobal.style.maxWidth = "270px";
+    tooltipGlobal.innerHTML = htmlContenido;
+  }
+  function ocultarTooltipGlobal() {
+    tooltipGlobal.style.opacity = 0;
+    tooltipGlobal.style.whiteSpace = "";
+    tooltipGlobal.style.maxWidth = "";
+  }
+
+  function estadoVacio(container) {
+    container.innerHTML = "";
+    var div = document.createElement("div");
+    div.className = "empty-state";
+    div.innerHTML =
+      '<div class="big">Recién estamos partiendo 🚀</div>' +
+      "Hoy es el día base. El gráfico de tendencia aparece automáticamente apenas el scraper " +
+      "acumule una segunda lectura (corre semanalmente vía GitHub Actions). Vuelve pronto.";
+    container.appendChild(div);
+  }
+
+  // ---------- vista 1: Índice del Completo vs. IPC (base 100) ----------
   function renderComparativo(container, serieIdC, serieIpc) {
     container.innerHTML = "";
-    if (serieIdC.length < 2) {
-      var div = document.createElement("div");
-      div.className = "empty-state";
-      div.innerHTML =
-        '<div class="big">Recién estamos partiendo 🚀</div>' +
-        "Hoy es el día base (índice = 100 para ambas series). " +
-        "El gráfico de tendencia aparece automáticamente apenas el scraper acumule una segunda lectura " +
-        "(corre semanalmente vía GitHub Actions). Vuelve pronto.";
-      container.appendChild(div);
-      return;
-    }
+    if (serieIdC.length < 2) { estadoVacio(container); return; }
 
     var w = container.clientWidth || 900;
     var h = 320;
@@ -306,7 +366,14 @@
     shell.className = "chart-shell";
     var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h });
 
-    // gridlines horizontales (4)
+    var defs = svgEl("defs", {});
+    var gradiente = svgEl("linearGradient", { id: "gradienteIdC", x1: "0", y1: "0", x2: "0", y2: "1" });
+    var stop1 = svgEl("stop", { offset: "0%" }); stop1.style.stopColor = "var(--series-1)"; stop1.style.stopOpacity = 0.22;
+    var stop2 = svgEl("stop", { offset: "100%" }); stop2.style.stopColor = "var(--series-1)"; stop2.style.stopOpacity = 0;
+    gradiente.appendChild(stop1); gradiente.appendChild(stop2);
+    defs.appendChild(gradiente);
+    svg.appendChild(defs);
+
     var pasos = 4;
     for (var g = 0; g <= pasos; g++) {
       var v = minV + ((maxV - minV) * g) / pasos;
@@ -316,34 +383,30 @@
       lbl.textContent = v.toFixed(0);
       svg.appendChild(lbl);
     }
-    // linea base = 100
     svg.appendChild(svgEl("line", { x1: pad.left, x2: w - pad.right, y1: y(100), y2: y(100), class: "baseline" }));
 
     function pathD(serie) {
       return serie.map(function (p, i) { return (i === 0 ? "M" : "L") + x(i) + " " + y(p.indice); }).join(" ");
     }
-    svg.appendChild(svgEl("path", { d: pathD(serieIdC), class: "line-1" }));
+    var areaD = pathD(serieIdC) + " L " + x(fechas.length - 1) + " " + y(minV) + " L " + x(0) + " " + y(minV) + " Z";
+    svg.appendChild(svgEl("path", { d: areaD, class: "area-1" }));
     svg.appendChild(svgEl("path", { d: pathD(serieIpc), class: "line-2" }));
+    svg.appendChild(svgEl("path", { d: pathD(serieIdC), class: "line-1" }));
 
-    serieIdC.forEach(function (p, i) { svg.appendChild(svgEl("circle", { cx: x(i), cy: y(p.indice), r: 3, class: "dot-1" })); });
     serieIpc.forEach(function (p, i) { svg.appendChild(svgEl("circle", { cx: x(i), cy: y(p.indice), r: 3, class: "dot-2" })); });
-
-    // eje x: primera y ultima fecha
-    [0, fechas.length - 1].forEach(function (i) {
-      var lbl = svgEl("text", { x: x(i), y: h - pad.bottom + 18, "text-anchor": i === 0 ? "start" : "end" });
-      lbl.textContent = fmtFecha(fechas[i]);
-      svg.appendChild(lbl);
+    // marcadores del IdC: mini hot dog en vez de punto, tal como en el resto del sitio
+    serieIdC.forEach(function (p, i) {
+      var marcador = svgEl("text", { x: x(i), y: y(p.indice), class: "marcador-hotdog" });
+      marcador.textContent = "🌭";
+      svg.appendChild(marcador);
     });
 
     var crosshair = svgEl("line", { x1: 0, x2: 0, y1: pad.top, y2: pad.top + innerH, class: "crosshair" });
     svg.appendChild(crosshair);
 
-    var hitLayer = svgEl("rect", {
-      x: pad.left, y: pad.top, width: innerW, height: innerH, fill: "transparent",
-    });
+    var hitLayer = svgEl("rect", { x: pad.left, y: pad.top, width: innerW, height: innerH, fill: "transparent" });
     svg.appendChild(hitLayer);
 
-    var tooltip = document.getElementById("tooltip");
     hitLayer.addEventListener("mousemove", function (evt) {
       var rect = svg.getBoundingClientRect();
       var mx = ((evt.clientX - rect.left) / rect.width) * w;
@@ -352,22 +415,158 @@
       var xi = x(i);
       crosshair.setAttribute("x1", xi); crosshair.setAttribute("x2", xi);
       crosshair.style.opacity = 1;
-      tooltip.style.opacity = 1;
-      tooltip.style.left = rect.left + xi + window.scrollX + "px";
-      tooltip.style.top = rect.top + y(serieIdC[i].indice) + window.scrollY + "px";
-      tooltip.innerHTML =
-        "<strong>" + fmtFecha(fechas[i]) + "</strong><br>" +
-        '<span class="dot" style="background:var(--series-1)"></span>IdC: ' + fmtIdx(serieIdC[i].indice) + "<br>" +
-        '<span class="dot" style="background:var(--series-2)"></span>IPC: ' + fmtIdx(serieIpc[i].indice);
+
+      var cabecera = "<strong>" + fmtFecha(fechas[i]) + "</strong>" +
+        '<div class="fila"><span>🌭 Índice del Completo</span><span>' + fmtIdx(serieIdC[i].indice) + "</span></div>" +
+        '<div class="fila"><span>📊 IPC oficial</span><span>' + fmtIdx(serieIpc[i].indice) + "</span></div>";
+      var htmlCompleto = serieIdC[i].desglose
+        ? cabecera + '<div style="border-top:1px solid rgba(255,255,255,0.15);margin:6px 0"></div>' +
+          htmlDesglose("Cómo se arma (promedio cadenas)", serieIdC[i].desglose, serieIdC[i].precio_completo_clp)
+        : cabecera;
+      mostrarTooltip(rect.left + xi + window.scrollX, rect.top + y(serieIdC[i].indice) + window.scrollY, htmlCompleto);
     });
     hitLayer.addEventListener("mouseleave", function () {
       crosshair.style.opacity = 0;
-      tooltip.style.opacity = 0;
+      ocultarTooltipGlobal();
     });
 
     shell.appendChild(svg);
     container.appendChild(shell);
   }
+
+  // ---------- vista 2: comparación entre cadenas (CLP reales, no indexado) ----------
+  function renderPorCadenaTiempo(container, cadenas) {
+    container.innerHTML = "";
+    var cadenasConDato = cadenas.filter(function (c) { return c.serie && c.serie.length >= 2; });
+    if (!cadenasConDato.length) { estadoVacio(container); return; }
+
+    var fechas = Array.from(new Set(
+      cadenasConDato.reduce(function (acc, c) { return acc.concat(c.serie.map(function (p) { return p.fecha; })); }, [])
+    )).sort();
+
+    var w = container.clientWidth || 900;
+    var h = 320;
+    var pad = { top: 16, right: 16, bottom: 28, left: 56 };
+    var innerW = w - pad.left - pad.right;
+    var innerH = h - pad.top - pad.bottom;
+
+    var todosPrecios = cadenasConDato.reduce(function (acc, c) { return acc.concat(c.serie.map(function (p) { return p.precio_completo_clp; })); }, []);
+    var minV = Math.min.apply(null, todosPrecios);
+    var maxV = Math.max.apply(null, todosPrecios);
+    var margenV = Math.max((maxV - minV) * 0.15, 10);
+    minV = Math.max(0, minV - margenV); maxV += margenV;
+
+    function x(i) { return pad.left + (innerW * i) / Math.max(fechas.length - 1, 1); }
+    function y(v) { return pad.top + innerH - ((v - minV) / (maxV - minV)) * innerH; }
+
+    var shell = document.createElement("div");
+    shell.className = "chart-shell";
+    var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h });
+
+    var pasos = 4;
+    for (var g = 0; g <= pasos; g++) {
+      var v = minV + ((maxV - minV) * g) / pasos;
+      var yy = y(v);
+      svg.appendChild(svgEl("line", { x1: pad.left, x2: w - pad.right, y1: yy, y2: yy, class: "gridline" }));
+      var lbl = svgEl("text", { x: pad.left - 8, y: yy + 3, "text-anchor": "end" });
+      lbl.textContent = fmtCLP(v);
+      svg.appendChild(lbl);
+    }
+
+    var porFechaCadena = {}; // fecha -> { clave: punto }
+    cadenasConDato.forEach(function (c) {
+      var color = COLOR_CADENA[c.clave] || "var(--text-muted)";
+      var puntos = c.serie.map(function (p) { return { i: fechas.indexOf(p.fecha), p: p }; });
+      var d = puntos.map(function (o, idx) { return (idx === 0 ? "M" : "L") + x(o.i) + " " + y(o.p.precio_completo_clp); }).join(" ");
+      svg.appendChild(svgEl("path", { d: d, style: "stroke:" + color + ";stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round" }));
+      puntos.forEach(function (o) {
+        svg.appendChild(svgEl("circle", { cx: x(o.i), cy: y(o.p.precio_completo_clp), r: 3, style: "fill:" + color }));
+        porFechaCadena[o.p.fecha] = porFechaCadena[o.p.fecha] || {};
+        porFechaCadena[o.p.fecha][c.clave] = { nombre: c.nombre, color: color, punto: o.p };
+      });
+    });
+
+    [0, fechas.length - 1].forEach(function (i) {
+      var lbl = svgEl("text", { x: x(i), y: h - pad.bottom + 18, "text-anchor": i === 0 ? "start" : "end" });
+      lbl.textContent = fmtFecha(fechas[i]);
+      svg.appendChild(lbl);
+    });
+
+    var crosshair = svgEl("line", { x1: 0, x2: 0, y1: pad.top, y2: pad.top + innerH, class: "crosshair" });
+    svg.appendChild(crosshair);
+    var hitLayer = svgEl("rect", { x: pad.left, y: pad.top, width: innerW, height: innerH, fill: "transparent" });
+    svg.appendChild(hitLayer);
+
+    hitLayer.addEventListener("mousemove", function (evt) {
+      var rect = svg.getBoundingClientRect();
+      var mx = ((evt.clientX - rect.left) / rect.width) * w;
+      var i = Math.round(((mx - pad.left) / innerW) * (fechas.length - 1));
+      i = Math.max(0, Math.min(fechas.length - 1, i));
+      var xi = x(i);
+      crosshair.setAttribute("x1", xi); crosshair.setAttribute("x2", xi);
+      crosshair.style.opacity = 1;
+
+      var datosFecha = porFechaCadena[fechas[i]] || {};
+      var filas = Object.keys(datosFecha).map(function (clave) {
+        var d = datosFecha[clave];
+        return '<div class="fila"><span><span class="dot" style="background:' + d.color + '"></span>' + d.nombre +
+          "</span><span>" + fmtCLP(d.punto.precio_completo_clp) + "</span></div>";
+      }).join("");
+      var yProm = Object.keys(datosFecha).length
+        ? Object.keys(datosFecha).reduce(function (s, k) { return s + y(datosFecha[k].punto.precio_completo_clp); }, 0) / Object.keys(datosFecha).length
+        : pad.top;
+      mostrarTooltip(rect.left + xi + window.scrollX, rect.top + yProm + window.scrollY, "<strong>" + fmtFecha(fechas[i]) + "</strong>" + filas);
+    });
+    hitLayer.addEventListener("mouseleave", function () {
+      crosshair.style.opacity = 0;
+      ocultarTooltipGlobal();
+    });
+
+    shell.appendChild(svg);
+    container.appendChild(shell);
+  }
+
+  // ---------- toggle de vista ----------
+  var indiceDataGlobal = null;
+  var serieIpcAlineadaGlobal = null;
+  var vistaActual = "ipc";
+
+  function renderLegendCadenas(cadenas) {
+    var legend = document.getElementById("chartLegend");
+    legend.innerHTML = cadenas
+      .filter(function (c) { return c.serie && c.serie.length; })
+      .map(function (c) {
+        var color = COLOR_CADENA[c.clave] || "var(--text-muted)";
+        return '<span class="item"><span class="swatch" style="background:' + color + '"></span>' + c.nombre + "</span>";
+      })
+      .join("");
+  }
+
+  function renderVistaActual() {
+    if (!indiceDataGlobal) return;
+    var contenedor = document.getElementById("chartComparativo");
+    if (vistaActual === "ipc") {
+      document.getElementById("chartTitulo").textContent = "Índice del Completo (IdC) vs. IPC oficial";
+      document.getElementById("chartSubtitulo").textContent = "Ambas series en la misma base 100, para comparar variación acumulada — no niveles.";
+      document.getElementById("chartLegend").innerHTML =
+        '<span class="item"><span class="swatch" style="background:var(--series-1)"></span>Índice del Completo</span>' +
+        '<span class="item"><span class="swatch" style="background:var(--series-2)"></span>IPC oficial (INE)</span>';
+      renderComparativo(contenedor, indiceDataGlobal.serie_nacional, serieIpcAlineadaGlobal);
+    } else {
+      document.getElementById("chartTitulo").textContent = "Comparación entre cadenas";
+      document.getElementById("chartSubtitulo").textContent = "Costo de la ración por semana, en pesos, por supermercado (solo cadenas con dato).";
+      renderLegendCadenas(indiceDataGlobal.cadenas);
+      renderPorCadenaTiempo(contenedor, indiceDataGlobal.cadenas);
+    }
+  }
+
+  document.querySelectorAll("#viewToggle button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      vistaActual = btn.getAttribute("data-vista");
+      document.querySelectorAll("#viewToggle button").forEach(function (b) { b.classList.toggle("activo", b === btn); });
+      renderVistaActual();
+    });
+  });
 
   // ---------- stat tiles ----------
   function renderStatTiles(container, indiceData) {
@@ -394,9 +593,11 @@
     container.appendChild(tile("Cadenas con precio", conDato + " / " + total, "el resto está pendiente de captura manual", "var(--text-secondary)"));
   }
 
-  // ---------- comparador por cadena ----------
-  var EMOJI_CATEGORIA = { salchicha: "🌭", mayonesa: "🧴", palta: "🥑", tomate: "🍅" };
-  var NOMBRE_CATEGORIA = { salchicha: "Vienesa", mayonesa: "Mayonesa", palta: "Palta", tomate: "Tomate" };
+  // ---------- comparador por cadena (tarjetas de hoy) ----------
+  function mostrarTooltipSobre(el, htmlContenido) {
+    var rect = el.getBoundingClientRect();
+    mostrarTooltip(rect.left + rect.width / 2 + window.scrollX, rect.top + window.scrollY - 8, htmlContenido);
+  }
 
   function renderCadenas(container, cadenas) {
     container.innerHTML = "";
@@ -405,35 +606,6 @@
     var maxPrecio = conDato.length
       ? Math.max.apply(null, conDato.map(function (c) { return c.precio_completo_clp; }))
       : 1;
-
-    var tooltip = document.getElementById("tooltip");
-    function mostrarTooltip(el, htmlContenido) {
-      var rect = el.getBoundingClientRect();
-      tooltip.style.opacity = 1;
-      tooltip.style.left = rect.left + rect.width / 2 + window.scrollX + "px";
-      tooltip.style.top = rect.top + window.scrollY - 8 + "px";
-      tooltip.style.whiteSpace = "normal";
-      tooltip.style.maxWidth = "270px";
-      tooltip.innerHTML = htmlContenido;
-    }
-    function ocultarTooltip() {
-      tooltip.style.opacity = 0;
-      tooltip.style.whiteSpace = "";
-      tooltip.style.maxWidth = "";
-    }
-
-    function htmlDesglose(c) {
-      var filas = (c.desglose || []).map(function (item) {
-        var emoji = EMOJI_CATEGORIA[item.categoria] || "•";
-        var nombre = NOMBRE_CATEGORIA[item.categoria] || item.categoria;
-        var precioUnit = fmtCLP(item.precio_unitario) + "/" + item.unidad;
-        return '<div class="fila"><span>' + emoji + " " + nombre +
-          ' <span style="opacity:.65">(' + item.gramos_racion + "g a " + precioUnit + ")</span></span>" +
-          "<span>" + fmtCLP(item.aporte_clp) + "</span></div>";
-      }).join("");
-      return "<strong>Cómo se arma el completo en " + c.nombre + "</strong>" + filas +
-        '<div class="total"><span>Total ración</span><span>' + fmtCLP(c.precio_completo_clp) + "</span></div>";
-    }
 
     conDato.forEach(function (c) {
       var pct = Math.max((c.precio_completo_clp / maxPrecio) * 100, 4);
@@ -446,10 +618,11 @@
       container.appendChild(row);
 
       var fill = row.querySelector(".cadena-bar-fill");
-      fill.addEventListener("mouseenter", function () { mostrarTooltip(fill, htmlDesglose(c)); });
-      fill.addEventListener("mouseleave", ocultarTooltip);
-      fill.addEventListener("focus", function () { mostrarTooltip(fill, htmlDesglose(c)); });
-      fill.addEventListener("blur", ocultarTooltip);
+      var html = htmlDesglose("Cómo se arma el completo en " + c.nombre, c.desglose, c.precio_completo_clp);
+      fill.addEventListener("mouseenter", function () { mostrarTooltipSobre(fill, html); });
+      fill.addEventListener("mouseleave", ocultarTooltipGlobal);
+      fill.addEventListener("focus", function () { mostrarTooltipSobre(fill, html); });
+      fill.addEventListener("blur", ocultarTooltipGlobal);
     });
 
     sinDato.forEach(function (c) {
@@ -479,10 +652,10 @@
       razonTrigger.setAttribute("role", "button");
       var texto = c.razon_corta || "No se pudo obtener el precio de forma automática.";
       var htmlRazon = "<strong>¿Por qué no hay dato?</strong><br>" + texto;
-      razonTrigger.addEventListener("mouseenter", function () { mostrarTooltip(razonTrigger, htmlRazon); });
-      razonTrigger.addEventListener("mouseleave", ocultarTooltip);
-      razonTrigger.addEventListener("focus", function () { mostrarTooltip(razonTrigger, htmlRazon); });
-      razonTrigger.addEventListener("blur", ocultarTooltip);
+      razonTrigger.addEventListener("mouseenter", function () { mostrarTooltipSobre(razonTrigger, htmlRazon); });
+      razonTrigger.addEventListener("mouseleave", ocultarTooltipGlobal);
+      razonTrigger.addEventListener("focus", function () { mostrarTooltipSobre(razonTrigger, htmlRazon); });
+      razonTrigger.addEventListener("blur", ocultarTooltipGlobal);
 
       pendienteDiv.appendChild(badge);
       pendienteDiv.appendChild(razonTrigger);
@@ -524,11 +697,9 @@
       });
     }
 
-    renderComparativo(
-      document.getElementById("chartComparativo"),
-      indiceData.serie_nacional,
-      serieIpcAlineada
-    );
+    indiceDataGlobal = indiceData;
+    serieIpcAlineadaGlobal = serieIpcAlineada;
+    renderVistaActual();
 
     document.getElementById("ultimaActualizacion").textContent =
       "última actualización: " + fmtFecha(indiceData.serie_nacional.slice(-1)[0].fecha);

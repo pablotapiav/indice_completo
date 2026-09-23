@@ -4,12 +4,42 @@
   "_nota_regional": "docs/LIMITACION_REGIONAL.md",
   "base_periodo": "2026-09-23",
   "costo_racion_base_clp": 1008.09,
-  "generado_en": "2026-09-23T20:00:56.694302+00:00",
+  "generado_en": "2026-09-23T20:12:41.759595+00:00",
   "serie_nacional": [
     {
       "fecha": "2026-09-23",
       "precio_completo_clp": 1008.09,
-      "indice": 100.0
+      "indice": 100.0,
+      "desglose": [
+        {
+          "categoria": "salchicha",
+          "precio_unitario": 888.09,
+          "unidad": "100g",
+          "gramos_racion": 70,
+          "aporte_clp": 621.66
+        },
+        {
+          "categoria": "mayonesa",
+          "precio_unitario": 393.55,
+          "unidad": "100g",
+          "gramos_racion": 15,
+          "aporte_clp": 59.03
+        },
+        {
+          "categoria": "palta",
+          "precio_unitario": 4410.0,
+          "unidad": "kg",
+          "gramos_racion": 50,
+          "aporte_clp": 220.5
+        },
+        {
+          "categoria": "tomate",
+          "precio_unitario": 3563.33,
+          "unidad": "kg",
+          "gramos_racion": 30,
+          "aporte_clp": 106.9
+        }
+      ]
     }
   ],
   "cadenas": [
@@ -51,6 +81,42 @@
           "gramos_racion": 30,
           "aporte_clp": 58.5
         }
+      ],
+      "serie": [
+        {
+          "fecha": "2026-09-23",
+          "precio_completo_clp": 567.11,
+          "desglose": [
+            {
+              "categoria": "salchicha",
+              "precio_unitario": 459.0,
+              "unidad": "100g",
+              "gramos_racion": 70,
+              "aporte_clp": 321.3
+            },
+            {
+              "categoria": "mayonesa",
+              "precio_unitario": 248.75,
+              "unidad": "100g",
+              "gramos_racion": 15,
+              "aporte_clp": 37.31
+            },
+            {
+              "categoria": "palta",
+              "precio_unitario": 3000.0,
+              "unidad": "kg",
+              "gramos_racion": 50,
+              "aporte_clp": 150.0
+            },
+            {
+              "categoria": "tomate",
+              "precio_unitario": 1950.0,
+              "unidad": "kg",
+              "gramos_racion": 30,
+              "aporte_clp": 58.5
+            }
+          ]
+        }
       ]
     },
     {
@@ -90,6 +156,42 @@
           "unidad": "kg",
           "gramos_racion": 30,
           "aporte_clp": 78.9
+        }
+      ],
+      "serie": [
+        {
+          "fecha": "2026-09-23",
+          "precio_completo_clp": 1149.12,
+          "desglose": [
+            {
+              "categoria": "salchicha",
+              "precio_unitario": 1086.84,
+              "unidad": "100g",
+              "gramos_racion": 70,
+              "aporte_clp": 760.79
+            },
+            {
+              "categoria": "mayonesa",
+              "precio_unitario": 482.89,
+              "unidad": "100g",
+              "gramos_racion": 15,
+              "aporte_clp": 72.43
+            },
+            {
+              "categoria": "palta",
+              "precio_unitario": 4740.0,
+              "unidad": "kg",
+              "gramos_racion": 50,
+              "aporte_clp": 237.0
+            },
+            {
+              "categoria": "tomate",
+              "precio_unitario": 2630.0,
+              "unidad": "kg",
+              "gramos_racion": 30,
+              "aporte_clp": 78.9
+            }
+          ]
         }
       ]
     },
@@ -131,6 +233,42 @@
           "gramos_racion": 30,
           "aporte_clp": 183.3
         }
+      ],
+      "serie": [
+        {
+          "fecha": "2026-09-23",
+          "precio_completo_clp": 1308.04,
+          "desglose": [
+            {
+              "categoria": "salchicha",
+              "precio_unitario": 1118.42,
+              "unidad": "100g",
+              "gramos_racion": 70,
+              "aporte_clp": 782.89
+            },
+            {
+              "categoria": "mayonesa",
+              "precio_unitario": 449.0,
+              "unidad": "100g",
+              "gramos_racion": 15,
+              "aporte_clp": 67.35
+            },
+            {
+              "categoria": "palta",
+              "precio_unitario": 5490.0,
+              "unidad": "kg",
+              "gramos_racion": 50,
+              "aporte_clp": 274.5
+            },
+            {
+              "categoria": "tomate",
+              "precio_unitario": 6110.0,
+              "unidad": "kg",
+              "gramos_racion": 30,
+              "aporte_clp": 183.3
+            }
+          ]
+        }
       ]
     },
     {
@@ -142,7 +280,8 @@
       "razon_pendiente": "robots.txt de lider.cl deshabilita explícitamente /search*, /catalogo/product*, /catalogo/category*, /supermercado/product*, /supermercado/category* y /supermercado* para cualquier bot genérico (solo permite Googlebot). Se respeta esa señal: no se scrapea, ni con cliente HTTP simple ni con navegador automatizado (Playwright habría sido evasión, no cumplimiento). Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null,
-      "desglose": null
+      "desglose": null,
+      "serie": []
     },
     {
       "clave": "unimarc",
@@ -153,7 +292,8 @@
       "razon_pendiente": "Bloqueo activo tipo Akamai: incluso /robots.txt devuelve 403. No se intenta evadir la protección anti-bot. Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null,
-      "desglose": null
+      "desglose": null,
+      "serie": []
     },
     {
       "clave": "mayorista10",
@@ -164,7 +304,8 @@
       "razon_pendiente": "Mismo bloqueo Akamai que Unimarc (ambas marcas de SMU, mismo backend/protección). Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null,
-      "desglose": null
+      "desglose": null,
+      "serie": []
     },
     {
       "clave": "alvi",
@@ -175,7 +316,8 @@
       "razon_pendiente": "Mismo bloqueo Akamai que Unimarc y Mayorista 10 (marca SMU). Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null,
-      "desglose": null
+      "desglose": null,
+      "serie": []
     },
     {
       "clave": "tottus",
@@ -186,7 +328,8 @@
       "razon_pendiente": "robots.txt permite scrapear catálogo, pero el sitio no corre en VTEX (a diferencia de Jumbo/Santa Isabel) y el endpoint probado devuelve 503 de forma consistente. Queda como candidato futuro para reverse-engineering de su API real. Precio pendiente de captura manual.",
       "precio_completo_clp": null,
       "fecha": null,
-      "desglose": null
+      "desglose": null,
+      "serie": []
     }
   ]
 }
