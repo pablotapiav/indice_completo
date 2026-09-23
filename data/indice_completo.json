@@ -1,0 +1,216 @@
+{
+  "_descripcion": "Indice del Completo (IdC): Laspeyres base 100 sobre salchicha+mayonesa+palta+tomate.",
+  "_metodologia": "docs/METODOLOGIA.md",
+  "base_periodo": "2026-09-23",
+  "costo_racion_base_clp": 1227.79,
+  "generado_en": "2026-09-23T18:04:49.553293+00:00",
+  "serie_nacional": [
+    {
+      "fecha": "2026-09-23",
+      "indice": 100.0
+    }
+  ],
+  "serie_referencia_sin_ponderar": [
+    {
+      "fecha": "2026-09-23",
+      "precio_completo_clp": 1227.79,
+      "indice": 100.0
+    }
+  ],
+  "serie_regional": {
+    "XV": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "I": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "II": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "III": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "IV": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "V": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "RM": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "VI": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "VII": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "XVI": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "VIII": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "IX": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "XIV": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "X": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "XI": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ],
+    "XII": [
+      {
+        "fecha": "2026-09-23",
+        "precio_completo_clp": 1227.79,
+        "indice": 100.0
+      }
+    ]
+  },
+  "regiones": [
+    {
+      "codigo": "XV",
+      "nombre": "Arica y Parinacota",
+      "capital": "Arica"
+    },
+    {
+      "codigo": "I",
+      "nombre": "Tarapaca",
+      "capital": "Iquique"
+    },
+    {
+      "codigo": "II",
+      "nombre": "Antofagasta",
+      "capital": "Antofagasta"
+    },
+    {
+      "codigo": "III",
+      "nombre": "Atacama",
+      "capital": "Copiapo"
+    },
+    {
+      "codigo": "IV",
+      "nombre": "Coquimbo",
+      "capital": "La Serena"
+    },
+    {
+      "codigo": "V",
+      "nombre": "Valparaiso",
+      "capital": "Valparaiso"
+    },
+    {
+      "codigo": "RM",
+      "nombre": "Metropolitana de Santiago",
+      "capital": "Santiago"
+    },
+    {
+      "codigo": "VI",
+      "nombre": "Libertador General Bernardo O'Higgins",
+      "capital": "Rancagua"
+    },
+    {
+      "codigo": "VII",
+      "nombre": "Maule",
+      "capital": "Talca"
+    },
+    {
+      "codigo": "XVI",
+      "nombre": "Nuble",
+      "capital": "Chillan"
+    },
+    {
+      "codigo": "VIII",
+      "nombre": "Biobio",
+      "capital": "Concepcion"
+    },
+    {
+      "codigo": "IX",
+      "nombre": "La Araucania",
+      "capital": "Temuco"
+    },
+    {
+      "codigo": "XIV",
+      "nombre": "Los Rios",
+      "capital": "Valdivia"
+    },
+    {
+      "codigo": "X",
+      "nombre": "Los Lagos",
+      "capital": "Puerto Montt"
+    },
+    {
+      "codigo": "XI",
+      "nombre": "Aysen del General Carlos Ibanez del Campo",
+      "capital": "Coyhaique"
+    },
+    {
+      "codigo": "XII",
+      "nombre": "Magallanes y de la Antartica Chilena",
+      "capital": "Punta Arenas"
+    }
+  ]
+}

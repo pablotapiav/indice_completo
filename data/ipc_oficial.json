@@ -1,0 +1,132 @@
+{
+  "_descripcion": "IPC oficial (INE), variacion mensual encadenada a indice base 100 en el mismo periodo base del Indice del Completo.",
+  "_fuente": "mindicador.cl (replica publica y gratuita de series del Banco Central / INE)",
+  "base_periodo_mes": "2026-09",
+  "generado_en": "2026-09-23T18:04:52.790587+00:00",
+  "serie": [
+    {
+      "mes": "2023-06",
+      "indice": 90.7899
+    },
+    {
+      "mes": "2023-07",
+      "indice": 91.1531
+    },
+    {
+      "mes": "2023-08",
+      "indice": 91.2443
+    },
+    {
+      "mes": "2023-09",
+      "indice": 91.883
+    },
+    {
+      "mes": "2023-10",
+      "indice": 92.2505
+    },
+    {
+      "mes": "2023-11",
+      "indice": 92.8963
+    },
+    {
+      "mes": "2023-12",
+      "indice": 92.4318
+    },
+    {
+      "mes": "2024-01",
+      "indice": 93.0788
+    },
+    {
+      "mes": "2024-02",
+      "indice": 93.6373
+    },
+    {
+      "mes": "2024-03",
+      "indice": 94.0118
+    },
+    {
+      "mes": "2024-04",
+      "indice": 94.4819
+    },
+    {
+      "mes": "2024-05",
+      "indice": 94.7653
+    },
+    {
+      "mes": "2024-06",
+      "indice": 94.6705
+    },
+    {
+      "mes": "2024-07",
+      "indice": 95.3332
+    },
+    {
+      "mes": "2024-08",
+      "indice": 95.6192
+    },
+    {
+      "mes": "2024-09",
+      "indice": 95.7148
+    },
+    {
+      "mes": "2024-10",
+      "indice": 96.6719
+    },
+    {
+      "mes": "2024-11",
+      "indice": 96.8652
+    },
+    {
+      "mes": "2024-12",
+      "indice": 96.6715
+    },
+    {
+      "mes": "2025-01",
+      "indice": 97.7349
+    },
+    {
+      "mes": "2025-02",
+      "indice": 98.1258
+    },
+    {
+      "mes": "2025-03",
+      "indice": 98.6164
+    },
+    {
+      "mes": "2025-04",
+      "indice": 98.8136
+    },
+    {
+      "mes": "2025-05",
+      "indice": 99.0112
+    },
+    {
+      "mes": "2025-06",
+      "indice": 98.6152
+    },
+    {
+      "mes": "2025-07",
+      "indice": 99.5027
+    },
+    {
+      "mes": "2025-08",
+      "indice": 99.5027
+    },
+    {
+      "mes": "2025-09",
+      "indice": 99.9007
+    },
+    {
+      "mes": "2025-10",
+      "indice": 99.9007
+    },
+    {
+      "mes": "2025-11",
+      "indice": 100.2004
+    },
+    {
+      "mes": "2025-12",
+      "indice": 100.0
+    }
+  ]
+}

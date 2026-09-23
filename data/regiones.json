@@ -1,0 +1,22 @@
+{
+  "_fuente": "INE Chile, proyecciones de poblacion por region (valores aproximados, redondeados). Actualizar via PR si hay cifras mas recientes.",
+  "_uso": "La poblacion se usa unicamente como ponderador para agregar los indices regionales en un indice nacional (promedio ponderado), replicando el criterio de agregacion que usa el IPC oficial del INE.",
+  "regiones": [
+    { "codigo": "XV", "nombre": "Arica y Parinacota", "capital": "Arica", "poblacion": 252000 },
+    { "codigo": "I",   "nombre": "Tarapaca", "capital": "Iquique", "poblacion": 385000 },
+    { "codigo": "II",  "nombre": "Antofagasta", "capital": "Antofagasta", "poblacion": 691000 },
+    { "codigo": "III", "nombre": "Atacama", "capital": "Copiapo", "poblacion": 320000 },
+    { "codigo": "IV",  "nombre": "Coquimbo", "capital": "La Serena", "poblacion": 866000 },
+    { "codigo": "V",   "nombre": "Valparaiso", "capital": "Valparaiso", "poblacion": 1975000 },
+    { "codigo": "RM",  "nombre": "Metropolitana de Santiago", "capital": "Santiago", "poblacion": 8420000 },
+    { "codigo": "VI",  "nombre": "Libertador General Bernardo O'Higgins", "capital": "Rancagua", "poblacion": 991000 },
+    { "codigo": "VII", "nombre": "Maule", "capital": "Talca", "poblacion": 1132000 },
+    { "codigo": "XVI", "nombre": "Nuble", "capital": "Chillan", "poblacion": 512000 },
+    { "codigo": "VIII","nombre": "Biobio", "capital": "Concepcion", "poblacion": 1665000 },
+    { "codigo": "IX",  "nombre": "La Araucania", "capital": "Temuco", "poblacion": 1015000 },
+    { "codigo": "XIV", "nombre": "Los Rios", "capital": "Valdivia", "poblacion": 407000 },
+    { "codigo": "X",   "nombre": "Los Lagos", "capital": "Puerto Montt", "poblacion": 891000 },
+    { "codigo": "XI",  "nombre": "Aysen del General Carlos Ibanez del Campo", "capital": "Coyhaique", "poblacion": 108000 },
+    { "codigo": "XII", "nombre": "Magallanes y de la Antartica Chilena", "capital": "Punta Arenas", "poblacion": 178000 }
+  ]
+}

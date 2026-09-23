@@ -1,0 +1,59 @@
+{
+  "_descripcion": "Definicion de la canasta del Indice del Completo (IdC). Cada categoria define como se busca, filtra y normaliza el precio (a una unidad comparable) en las cadenas scrapeadas.",
+  "base_unidad": "CLP por 100 gramos (salvo que se indique 'kg', que es CLP por kilogramo)",
+  "racion_completo_italiano": {
+    "_descripcion": "Gramaje aproximado de 1 completo italiano estandar. Se usa como vector de cantidades fijas (q0) del indice tipo Laspeyres. No incluye pan, ya que el encargo original solo pide estos 4 insumos.",
+    "salchicha_g": 70,
+    "mayonesa_g": 15,
+    "palta_g": 50,
+    "tomate_g": 30
+  },
+  "categorias": {
+    "salchicha": {
+      "termino_busqueda": "vienesas",
+      "unidad": "100g",
+      "categoria_whitelist": ["Salchichas"],
+      "nombre_excluye": ["roller", "maquina", "pinche", "tenedor"]
+    },
+    "mayonesa": {
+      "termino_busqueda": "mayonesa",
+      "unidad": "100g",
+      "categoria_whitelist": ["Despensa", "Aderezos", "Salsas"],
+      "nombre_incluye": ["mayonesa"],
+      "nombre_excluye": ["shampoo", "acondicionador", "balsamo"]
+    },
+    "palta": {
+      "termino_busqueda": "palta hass",
+      "unidad": "kg",
+      "categoria_whitelist": ["Frutas y Verduras"],
+      "nombre_incluye": ["palta"],
+      "nombre_excluye": ["shampoo", "acondicionador", "balsamo", "keratin", "alino", "salsa", "mascarilla", "aprox", " un."]
+    },
+    "tomate": {
+      "termino_busqueda": "tomate granel",
+      "unidad": "kg",
+      "categoria_whitelist": ["Frutas y Verduras"],
+      "nombre_incluye": ["tomate"],
+      "nombre_excluye": ["salsa", "pure", "deshidratado", "seco", "conserva", "aprox", " un."]
+    }
+  },
+  "cadenas": {
+    "jumbo": {
+      "nombre": "Jumbo",
+      "cuenta_vtex": "jumbocl",
+      "robots_txt": "https://www.jumbo.cl/robots.txt",
+      "notas_robots": "El robots.txt de jumbo.cl no restringe busqueda/categoria/producto; solo excluye checkout, cuenta y parametros de filtro (map=, ps=, sc=)."
+    },
+    "santaisabel": {
+      "nombre": "Santa Isabel",
+      "cuenta_vtex": "santaisabel",
+      "robots_txt": "https://www.santaisabel.cl/robots.txt",
+      "notas_robots": "Mismo criterio que jumbo.cl: no restringe busqueda/categoria/producto."
+    }
+  },
+  "cadenas_excluidas": {
+    "lider": "robots.txt de lider.cl deshabilita explicitamente /search*, /catalogo/product*, /catalogo/category*, /supermercado/product* y /supermercado/category* -> se respeta y NO se scrapea.",
+    "unimarc": "unimarc.cl bloquea automaticamente (Akamai, HTTP 403 incluso para /robots.txt) -> no se intenta evadir la proteccion anti-bot.",
+    "tottus": "Endpoint de catalogo probado devuelve 503 de forma consistente; se deja fuera hasta identificar una via compatible con su robots.txt."
+  }
+}

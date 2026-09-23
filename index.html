@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Índice del Completo</title>
+<meta name="description" content="Cuánto ha subido el completo italiano (vienesa, mayonesa, palta, tomate) en cada región de Chile, comparado con el IPC oficial. Base 100.">
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page-plane:     #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6; /* Índice del Completo */
+    --series-2:       #eb6834; /* IPC oficial INE */
+    --good:           #006300;
+    --critical:       #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page-plane:     #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --series-1:       #3987e5;
+      --series-2:       #d95926;
+      --good:           #0ca30c;
+      --critical:       #e66767;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page-plane:     #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --series-1:       #3987e5;
+    --series-2:       #d95926;
+    --good:           #0ca30c;
+    --critical:       #e66767;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+
+  header.hero { padding: 28px 0 8px; }
+  header.hero h1 { font-size: 28px; margin: 0 0 6px; letter-spacing: -0.02em; }
+  header.hero .sub { color: var(--text-secondary); font-size: 15px; max-width: 62ch; line-height: 1.5; }
+  .theme-toggle {
+    position: absolute; top: 20px; right: 16px;
+    font-size: 12px; color: var(--text-muted); background: var(--surface-1);
+    border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; cursor: pointer;
+  }
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 18px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 2px; font-weight: 600; }
+  .card .card-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; }
+
+  .stat-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .stat-tile {
+    flex: 1 1 200px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .stat-tile .label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-tile .value { font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stat-tile .delta { font-size: 12.5px; margin-top: 4px; color: var(--text-secondary); }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; vertical-align:2px; }
+
+  .legend { display: flex; gap: 18px; font-size: 12.5px; color: var(--text-secondary); margin-bottom: 8px; }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 16px; height: 2px; border-radius: 2px; }
+
+  svg text { fill: var(--text-muted); font-size: 11px; font-family: inherit; }
+  .gridline { stroke: var(--gridline); stroke-width: 1; }
+  .baseline { stroke: var(--baseline); stroke-width: 1; }
+  .line-1 { stroke: var(--series-1); stroke-width: 2; fill: none; stroke-linecap: round; }
+  .line-2 { stroke: var(--series-2); stroke-width: 2; fill: none; stroke-linecap: round; }
+  .dot-1 { fill: var(--series-1); }
+  .dot-2 { fill: var(--series-2); }
+  .crosshair { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--surface-1);
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px;
+    font-size: 12px; color: var(--text-primary); box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    opacity: 0; transform: translate(-50%, -110%); white-space: nowrap;
+  }
+  .chart-shell { position: relative; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    text-align: left; font-weight: 600; color: var(--text-muted); font-size: 11.5px;
+    text-transform: uppercase; letter-spacing: 0.03em; padding: 8px 10px; cursor: pointer;
+    border-bottom: 1px solid var(--gridline); user-select: none;
+  }
+  thead th:hover { color: var(--text-primary); }
+  tbody td { padding: 9px 10px; border-bottom: 1px solid var(--gridline); font-variant-numeric: tabular-nums; }
+  tbody tr:last-child td { border-bottom: none; }
+  .num { text-align: right; }
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 999px;
+    background: var(--gridline); color: var(--text-secondary);
+  }
+
+  .empty-state {
+    text-align: center; padding: 22px 10px; color: var(--text-secondary); font-size: 13.5px;
+  }
+  .empty-state .big { font-size: 15px; color: var(--text-primary); margin-bottom: 4px; }
+
+  footer { margin-top: 30px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  footer a { color: var(--text-secondary); }
+  .disclaimer {
+    border: 1px dashed var(--border); border-radius: 10px; padding: 12px 14px;
+    font-size: 12px; color: var(--text-secondary); margin-top: 18px; line-height: 1.55;
+  }
+  code { background: var(--gridline); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="viz-root">
+  <div class="wrap" style="position:relative">
+    <button class="theme-toggle" id="themeToggle" type="button">tema: auto</button>
+
+    <header class="hero">
+      <h1>🌭 Índice del Completo</h1>
+      <div class="sub">
+        Cuánto cuesta armar un completo italiano (vienesa + mayonesa + palta + tomate)
+        en supermercados online de Chile, semana a semana, comparado con el IPC oficial del INE.
+        Base 100 en el día que partió la medición.
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Índice del Completo (IdC) vs. IPC oficial</h2>
+      <div class="card-sub">Ambas series en la misma base 100, para comparar variación acumulada — no niveles.</div>
+      <div class="legend">
+        <span class="item"><span class="swatch" style="background:var(--series-1)"></span>Índice del Completo</span>
+        <span class="item"><span class="swatch" style="background:var(--series-2)"></span>IPC oficial (INE)</span>
+      </div>
+      <div id="chartComparativo"></div>
+    </section>
+
+    <section class="card">
+      <h2>Costo de la ración hoy</h2>
+      <div class="card-sub">Precio de referencia nacional (mediana entre cadenas scrapeadas)</div>
+      <div class="stat-row" id="statTiles"></div>
+    </section>
+
+    <section class="card">
+      <h2>Por región</h2>
+      <div class="card-sub" id="regionSub">Índice del Completo por capital regional (click en una columna para ordenar)</div>
+      <div id="regionTableWrap"></div>
+    </section>
+
+    <div class="disclaimer">
+      <strong>Cómo leer esto:</strong> el IdC es un índice tipo Laspeyres sobre una canasta fija de 4 insumos
+      (metodología completa en <a href="docs/METODOLOGIA.md">docs/METODOLOGIA.md</a>). El precio se obtiene de
+      catálogos online de Jumbo y Santa Isabel, que publican un precio de lista nacional — no se confirmó
+      variación de precio por región en esas cadenas, así que hoy el mismo precio de referencia se aplica a
+      las 16 regiones. La columna "cobertura" indica si una región ya tiene un precio de terreno real
+      (<code>data/precios_manual_regional.csv</code>) o si todavía usa el proxy nacional. Este es un proyecto
+      independiente, no oficial, sin fines de lucro y con fines humorístico-estadísticos: no reemplaza al IPC
+      del INE ni está afiliado a él ni a ningún supermercado.
+    </div>
+
+    <footer>
+      Fuentes: catálogo público de <a href="https://www.jumbo.cl" rel="noopener">Jumbo.cl</a> y
+      <a href="https://www.santaisabel.cl" rel="noopener">SantaIsabel.cl</a> (scraper propio, respeta robots.txt) ·
+      IPC oficial vía <a href="https://mindicador.cl" rel="noopener">mindicador.cl</a> (réplica pública de series INE/Banco Central) ·
+      código en <a href="https://github.com" rel="noopener">GitHub</a> (MIT) ·
+      <span id="ultimaActualizacion"></span>
+    </footer>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- tema ----------
+  var toggle = document.getElementById("themeToggle");
+  var modos = ["auto", "light", "dark"];
+  var modoActual = localStorage.getItem("idc-theme") || "auto";
+  function aplicarTema(m) {
+    if (m === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", m);
+    toggle.textContent = "tema: " + m;
+  }
+  try { aplicarTema(modoActual); } catch (e) {}
+  toggle.addEventListener("click", function () {
+    modoActual = modos[(modos.indexOf(modoActual) + 1) % modos.length];
+    try { localStorage.setItem("idc-theme", modoActual); } catch (e) {}
+    aplicarTema(modoActual);
+  });
+
+  // ---------- utilidades ----------
+  function fmtCLP(n) {
+    return "$" + Math.round(n).toLocaleString("es-CL");
+  }
+  function fmtIdx(n) {
+    return n.toFixed(1);
+  }
+  function fmtFecha(iso) {
+    var d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("es-CL", { day: "2-digit", month: "short", year: "numeric" });
+  }
+
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  // ---------- chart de líneas (>=2 puntos) o comparación de stat-tiles (1 punto) ----------
+  function renderComparativo(container, serieIdC, serieIpc) {
+    container.innerHTML = "";
+    if (serieIdC.length < 2) {
+      var div = document.createElement("div");
+      div.className = "empty-state";
+      div.innerHTML =
+        '<div class="big">Recién estamos partiendo 🚀</div>' +
+        "Hoy es el día base (índice = 100 para ambas series). " +
+        "El gráfico de tendencia aparece automáticamente apenas el scraper acumule una segunda lectura " +
+        "(corre semanalmente vía GitHub Actions). Vuelve pronto.";
+      container.appendChild(div);
+      return;
+    }
+
+    var w = container.clientWidth || 900;
+    var h = 320;
+    var pad = { top: 16, right: 16, bottom: 28, left: 44 };
+    var innerW = w - pad.left - pad.right;
+    var innerH = h - pad.top - pad.bottom;
+
+    var todos = serieIdC.concat(serieIpc).map(function (p) { return p.indice; });
+    var minV = Math.min.apply(null, todos.concat([100]));
+    var maxV = Math.max.apply(null, todos.concat([100]));
+    var margenV = Math.max((maxV - minV) * 0.15, 1);
+    minV -= margenV; maxV += margenV;
+
+    var fechas = serieIdC.map(function (p) { return p.fecha; });
+    function x(i) { return pad.left + (innerW * i) / Math.max(fechas.length - 1, 1); }
+    function y(v) { return pad.top + innerH - ((v - minV) / (maxV - minV)) * innerH; }
+
+    var shell = document.createElement("div");
+    shell.className = "chart-shell";
+    var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h });
+
+    // gridlines horizontales (4)
+    var pasos = 4;
+    for (var g = 0; g <= pasos; g++) {
+      var v = minV + ((maxV - minV) * g) / pasos;
+      var yy = y(v);
+      svg.appendChild(svgEl("line", { x1: pad.left, x2: w - pad.right, y1: yy, y2: yy, class: "gridline" }));
+      var lbl = svgEl("text", { x: pad.left - 8, y: yy + 3, "text-anchor": "end" });
+      lbl.textContent = v.toFixed(0);
+      svg.appendChild(lbl);
+    }
+    // linea base = 100
+    svg.appendChild(svgEl("line", { x1: pad.left, x2: w - pad.right, y1: y(100), y2: y(100), class: "baseline" }));
+
+    function pathD(serie) {
+      return serie.map(function (p, i) { return (i === 0 ? "M" : "L") + x(i) + " " + y(p.indice); }).join(" ");
+    }
+    svg.appendChild(svgEl("path", { d: pathD(serieIdC), class: "line-1" }));
+    svg.appendChild(svgEl("path", { d: pathD(serieIpc), class: "line-2" }));
+
+    serieIdC.forEach(function (p, i) { svg.appendChild(svgEl("circle", { cx: x(i), cy: y(p.indice), r: 3, class: "dot-1" })); });
+    serieIpc.forEach(function (p, i) { svg.appendChild(svgEl("circle", { cx: x(i), cy: y(p.indice), r: 3, class: "dot-2" })); });
+
+    // eje x: primera y ultima fecha
+    [0, fechas.length - 1].forEach(function (i) {
+      var lbl = svgEl("text", { x: x(i), y: h - pad.bottom + 18, "text-anchor": i === 0 ? "start" : "end" });
+      lbl.textContent = fmtFecha(fechas[i]);
+      svg.appendChild(lbl);
+    });
+
+    var crosshair = svgEl("line", { x1: 0, x2: 0, y1: pad.top, y2: pad.top + innerH, class: "crosshair" });
+    svg.appendChild(crosshair);
+
+    var hitLayer = svgEl("rect", {
+      x: pad.left, y: pad.top, width: innerW, height: innerH, fill: "transparent",
+    });
+    svg.appendChild(hitLayer);
+
+    var tooltip = document.getElementById("tooltip");
+    hitLayer.addEventListener("mousemove", function (evt) {
+      var rect = svg.getBoundingClientRect();
+      var mx = ((evt.clientX - rect.left) / rect.width) * w;
+      var i = Math.round(((mx - pad.left) / innerW) * (fechas.length - 1));
+      i = Math.max(0, Math.min(fechas.length - 1, i));
+      var xi = x(i);
+      crosshair.setAttribute("x1", xi); crosshair.setAttribute("x2", xi);
+      crosshair.style.opacity = 1;
+      tooltip.style.opacity = 1;
+      tooltip.style.left = rect.left + xi + window.scrollX + "px";
+      tooltip.style.top = rect.top + y(serieIdC[i].indice) + window.scrollY + "px";
+      tooltip.innerHTML =
+        "<strong>" + fmtFecha(fechas[i]) + "</strong><br>" +
+        '<span class="dot" style="background:var(--series-1)"></span>IdC: ' + fmtIdx(serieIdC[i].indice) + "<br>" +
+        '<span class="dot" style="background:var(--series-2)"></span>IPC: ' + fmtIdx(serieIpc[i].indice);
+    });
+    hitLayer.addEventListener("mouseleave", function () {
+      crosshair.style.opacity = 0;
+      tooltip.style.opacity = 0;
+    });
+
+    shell.appendChild(svg);
+    container.appendChild(shell);
+  }
+
+  // ---------- stat tiles ----------
+  function renderStatTiles(container, indiceData) {
+    container.innerHTML = "";
+    var ref = indiceData.serie_referencia_sin_ponderar;
+    var ultimo = ref[ref.length - 1];
+    var base = ref[0];
+    var deltaPct = ((ultimo.precio_completo_clp / base.precio_completo_clp) - 1) * 100;
+
+    function tile(label, value, delta, color) {
+      var t = document.createElement("div");
+      t.className = "stat-tile";
+      t.innerHTML =
+        '<div class="label">' + label + '</div>' +
+        '<div class="value">' + value + '</div>' +
+        (delta ? '<div class="delta" style="color:' + color + '">' + delta + '</div>' : "");
+      return t;
+    }
+
+    container.appendChild(tile("Precio ración (hoy)", fmtCLP(ultimo.precio_completo_clp), "base: " + fmtCLP(base.precio_completo_clp) + " el " + fmtFecha(base.fecha), "var(--text-secondary)"));
+    container.appendChild(tile("Índice del Completo", fmtIdx(ultimo.indice), (deltaPct >= 0 ? "+" : "") + deltaPct.toFixed(2) + "% desde la base", deltaPct >= 0 ? "var(--critical)" : "var(--good)"));
+    container.appendChild(tile("Regiones cubiertas", "16 / 16", "capitales regionales, ver tabla abajo", "var(--text-secondary)"));
+  }
+
+  // ---------- tabla regional ----------
+  function renderRegionTable(container, indiceData, overridesRegiones) {
+    var filas = indiceData.regiones.map(function (r) {
+      var serie = indiceData.serie_regional[r.codigo] || [];
+      var ultimo = serie[serie.length - 1];
+      return {
+        region: r.nombre,
+        capital: r.capital,
+        indice: ultimo ? ultimo.indice : null,
+        precio: ultimo ? ultimo.precio_completo_clp : null,
+        cobertura: overridesRegiones.has(r.codigo) ? "terreno" : "proxy nacional",
+      };
+    });
+
+    var ordenCol = "region", ordenAsc = true;
+
+    function draw() {
+      filas.sort(function (a, b) {
+        var av = a[ordenCol], bv = b[ordenCol];
+        if (av === null) return 1;
+        if (bv === null) return -1;
+        if (typeof av === "string") return ordenAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+        return ordenAsc ? av - bv : bv - av;
+      });
+
+      var html = "<table><thead><tr>" +
+        '<th data-col="region">Región</th>' +
+        '<th data-col="capital">Capital</th>' +
+        '<th data-col="indice" class="num">Índice</th>' +
+        '<th data-col="precio" class="num">Precio ración</th>' +
+        '<th data-col="cobertura">Cobertura</th>' +
+        "</tr></thead><tbody>";
+      filas.forEach(function (f) {
+        html += "<tr>" +
+          "<td>" + f.region + "</td>" +
+          "<td>" + f.capital + "</td>" +
+          '<td class="num">' + (f.indice !== null ? fmtIdx(f.indice) : "—") + "</td>" +
+          '<td class="num">' + (f.precio !== null ? fmtCLP(f.precio) : "—") + "</td>" +
+          "<td><span class=\"badge\">" + f.cobertura + "</span></td>" +
+          "</tr>";
+      });
+      html += "</tbody></table>";
+      container.innerHTML = html;
+
+      container.querySelectorAll("th").forEach(function (th) {
+        th.addEventListener("click", function () {
+          var col = th.getAttribute("data-col");
+          ordenAsc = ordenCol === col ? !ordenAsc : true;
+          ordenCol = col;
+          draw();
+        });
+      });
+    }
+    draw();
+  }
+
+  // ---------- carga de datos ----------
+  function cargarJSON(ruta) {
+    return fetch(ruta, { cache: "no-store" }).then(function (r) {
+      if (!r.ok) throw new Error("No se pudo cargar " + ruta + " (" + r.status + ")");
+      return r.json();
+    });
+  }
+
+  Promise.all([
+    cargarJSON("data/indice_completo.json"),
+    cargarJSON("data/ipc_oficial.json").catch(function () { return null; }),
+  ]).then(function (res) {
+    var indiceData = res[0];
+    var ipcData = res[1];
+
+    renderStatTiles(document.getElementById("statTiles"), indiceData);
+
+    var overridesRegiones = new Set(); // se llena si data/precios_manual_regional.csv aporta filas (ver compute_index.py)
+    renderRegionTable(document.getElementById("regionTableWrap"), indiceData, overridesRegiones);
+
+    var serieIpcAlineada = [];
+    if (ipcData) {
+      var porMes = {};
+      ipcData.serie.forEach(function (p) { porMes[p.mes] = p.indice; });
+      serieIpcAlineada = indiceData.serie_referencia_sin_ponderar.map(function (p) {
+        var mes = p.fecha.slice(0, 7);
+        return { fecha: p.fecha, indice: porMes[mes] !== undefined ? porMes[mes] : 100 };
+      });
+    } else {
+      serieIpcAlineada = indiceData.serie_referencia_sin_ponderar.map(function (p) {
+        return { fecha: p.fecha, indice: 100 };
+      });
+    }
+
+    renderComparativo(
+      document.getElementById("chartComparativo"),
+      indiceData.serie_referencia_sin_ponderar,
+      serieIpcAlineada
+    );
+
+    document.getElementById("ultimaActualizacion").textContent =
+      "última actualización: " + fmtFecha(indiceData.serie_referencia_sin_ponderar.slice(-1)[0].fecha);
+  }).catch(function (err) {
+    document.getElementById("chartComparativo").innerHTML =
+      '<div class="empty-state"><div class="big">No se pudo cargar la data</div>' + err.message + "</div>";
+    console.error(err);
+  });
+})();
+</script>
+</body>
+</html>

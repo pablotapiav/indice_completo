@@ -1,0 +1,130 @@
+{
+  "generado_en": "2026-09-23T18:03:50.328287+00:00",
+  "filas": [
+    {
+      "fecha": "2026-09-23",
+      "cadena": "jumbo",
+      "categoria": "salchicha",
+      "precio_unitario": 1086.84,
+      "unidad": "100g",
+      "n_muestras": 3,
+      "productos_usados": [
+        "Vienesas Emporio Alemán 250 g",
+        "Vienesas La Preferida Sin Piel 380 g 7 un.",
+        "Vienesas La Preferida Sin Piel 760 g 14 un."
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "jumbo",
+      "categoria": "mayonesa",
+      "precio_unitario": 472.37,
+      "unidad": "100g",
+      "n_muestras": 13,
+      "productos_usados": [
+        "Mayonesa Gourmet 300 g",
+        "Mayonesa Tradicional 800 g",
+        "Mayonesa Alacena 475 g",
+        "Mayonesa Tradicional 400 g",
+        "Mayonesa Regular 950 g",
+        "Mayonesa Regular 760 g",
+        "Mayonesa Light 760 g",
+        "Mayonesa Máxima 816 g",
+        "Mayonesa Hellmann's Sachet 93 g",
+        "Mayonesa Light Cuisine 950 g",
+        "Mayonesa Hellmann's Doypack 800 g",
+        "Mayonesa Hellmann's Doypack 1 kg",
+        "Mayonesa de Soya Eggless 352 ml"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "jumbo",
+      "categoria": "palta",
+      "precio_unitario": 4740.0,
+      "unidad": "kg",
+      "n_muestras": 2,
+      "productos_usados": [
+        "Palta Hass 1 kg",
+        "Palta Hass Malla 1 kg"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "jumbo",
+      "categoria": "tomate",
+      "precio_unitario": 2630.0,
+      "unidad": "kg",
+      "n_muestras": 5,
+      "productos_usados": [
+        "Tomate Beef Granel",
+        "Tomate Salad Granel",
+        "Tomate Hidropónico Racimo Granel",
+        "Tomate San Marzano Granel",
+        "Tomate Cóctel Variedades Granel"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "santaisabel",
+      "categoria": "salchicha",
+      "precio_unitario": 1118.42,
+      "unidad": "100g",
+      "n_muestras": 3,
+      "productos_usados": [
+        "Vienesas La Preferida Sin Piel 380 g 7 un.",
+        "Vienesas La Preferida Sin Piel 760 g 14 un.",
+        "Vienesas Emporio Alemán 250 g"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "santaisabel",
+      "categoria": "mayonesa",
+      "precio_unitario": 449.0,
+      "unidad": "100g",
+      "n_muestras": 15,
+      "productos_usados": [
+        "Mayonesa Regular 950 g",
+        "Mayonesa Light 400 g",
+        "Mayonesa Clásica 310 g",
+        "Mayonesa Regular 400 g",
+        "Mayonesa Regular 760 g",
+        "Mayonesa Gourmet 300 g",
+        "Mayonesa Americana 447 g",
+        "Mayonesa Alacena 475 g",
+        "Mayonesa Regular 800 g",
+        "Mayonesa Regular 1 kg",
+        "Mayonesa Casera 760 g",
+        "Mayonesa Regular 100 g",
+        "Mayonesa Light 100 g",
+        "Mayonesa Tradicional 400 g",
+        "Mayonesa Alacena 95 g"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "santaisabel",
+      "categoria": "palta",
+      "precio_unitario": 5490.0,
+      "unidad": "kg",
+      "n_muestras": 3,
+      "productos_usados": [
+        "Palta Hass Malla 1 kg",
+        "Palta Hass Extra Importada Granel",
+        "Palta Hass Extra Malla 1 kg"
+      ]
+    },
+    {
+      "fecha": "2026-09-23",
+      "cadena": "santaisabel",
+      "categoria": "tomate",
+      "precio_unitario": 6110.0,
+      "unidad": "kg",
+      "n_muestras": 1,
+      "productos_usados": [
+        "Tomate Cóctel Variedades Granel"
+      ]
+    }
+  ]
+}
