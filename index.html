@@ -687,9 +687,19 @@
     if (ipcData) {
       var porMes = {};
       ipcData.serie.forEach(function (p) { porMes[p.mes] = p.indice; });
+      var mesesConDato = Object.keys(porMes).sort();
+      // El INE publica el IPC una vez al mes: si la semana cae en un mes que
+      // todavía no se publica, se repite el último valor oficial conocido
+      // (no se inventa ni se cae a 100 - eso implicaría "sin variación",
+      // que no es lo mismo que "sin dato todavía").
+      function valorIpcParaMes(mes) {
+        if (porMes[mes] !== undefined) return porMes[mes];
+        var anteriores = mesesConDato.filter(function (m) { return m <= mes; });
+        var mesUsar = anteriores.length ? anteriores[anteriores.length - 1] : mesesConDato[0];
+        return porMes[mesUsar];
+      }
       serieIpcAlineada = indiceData.serie_nacional.map(function (p) {
-        var mes = p.fecha.slice(0, 7);
-        return { fecha: p.fecha, indice: porMes[mes] !== undefined ? porMes[mes] : 100 };
+        return { fecha: p.fecha, indice: valorIpcParaMes(p.fecha.slice(0, 7)) };
       });
     } else {
       serieIpcAlineada = indiceData.serie_nacional.map(function (p) {
