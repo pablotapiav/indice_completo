@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://indice-completo.vercel.app/sitemap.xml

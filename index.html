@@ -5,7 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Índice del Completo</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://indice-completo.vercel.app/">
 <meta name="description" content="Cuánto cuesta armar un completo italiano en las distintas cadenas de supermercados de Chile — comparado entre ellas y contra el IPC oficial del INE.">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph / vistas previas al compartir (WhatsApp, Slack, X, etc.) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Índice del Completo">
+<meta property="og:title" content="🌭 Índice del Completo">
+<meta property="og:description" content="Cuánto cuesta armar un completo italiano en las distintas cadenas de supermercados de Chile — comparado entre ellas y contra el IPC oficial del INE.">
+<meta property="og:url" content="https://indice-completo.vercel.app/">
+<meta property="og:locale" content="es_CL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="🌭 Índice del Completo">
+<meta name="twitter:description" content="Cuánto cuesta armar un completo italiano en las distintas cadenas de supermercados de Chile — comparado entre ellas y contra el IPC oficial del INE.">
+
+<!-- Datos estructurados: le dice a buscadores qué es esto y de dónde sale el dato -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "Índice del Completo",
+  "description": "Precio semanal de un completo italiano (vienesa, mayonesa, palta, tomate) en distintas cadenas de supermercado de Chile, comparado entre ellas y contra el IPC oficial del INE.",
+  "url": "https://indice-completo.vercel.app/",
+  "license": "https://opensource.org/licenses/MIT",
+  "creator": {
+    "@type": "Organization",
+    "name": "Índice del Completo",
+    "url": "https://github.com/pablotapiav/indice_completo"
+  },
+  "keywords": ["completo italiano", "IPC Chile", "precios supermercado", "inflación", "índice de precios"],
+  "temporalCoverage": "2026-09/..",
+  "spatialCoverage": {
+    "@type": "Place",
+    "name": "Chile"
+  },
+  "variableMeasured": "Costo de la ración de un completo italiano por cadena de supermercado",
+  "distribution": {
+    "@type": "DataDownload",
+    "encodingFormat": "application/json",
+    "contentUrl": "https://indice-completo.vercel.app/data/indice_completo.json"
+  }
+}
+</script>
 <style>
   .viz-root {
     color-scheme: light;
@@ -191,6 +233,21 @@
 </style>
 </head>
 <body>
+<noscript>
+  <div style="max-width:700px;margin:40px auto;padding:0 16px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.6">
+    <h1>🌭 Índice del Completo</h1>
+    <p>Cuánto cuesta armar un completo italiano (vienesa, mayonesa, palta y tomate) en distintas
+    cadenas de supermercado de Chile (Líder, Jumbo, Unimarc, Santa Isabel, Mayorista 10,
+    SuperBodega aCuenta, Alvi, Tottus), comparado entre ellas y contra el IPC oficial del INE.
+    Índice tipo Laspeyres, base 100.</p>
+    <p>Esta página necesita JavaScript para mostrar el gráfico y los precios actualizados.
+    El dato crudo está disponible igual, sin JavaScript, en formato JSON:
+    <a href="data/indice_completo.json">data/indice_completo.json</a> (precio por cadena) y
+    <a href="data/ipc_oficial.json">data/ipc_oficial.json</a> (serie oficial del INE).</p>
+    <p>Metodología completa, código fuente y licencia MIT en
+    <a href="https://github.com/pablotapiav/indice_completo">github.com/pablotapiav/indice_completo</a>.</p>
+  </div>
+</noscript>
 <div class="viz-root">
   <div class="wrap" style="position:relative">
     <button class="theme-toggle" id="themeToggle" type="button">tema: auto</button>
