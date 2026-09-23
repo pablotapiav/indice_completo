@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Índice del Completo</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<meta name="description" content="Cuánto cuesta armar un completo italiano (vienesa, mayonesa, palta, tomate) en Líder, Jumbo, Unimarc, Santa Isabel y otras cadenas de Chile, comparado con el IPC oficial. Base 100.">
+<meta name="description" content="Cuánto cuesta armar un completo italiano en las distintas cadenas de supermercados de Chile — comparado entre ellas y contra el IPC oficial del INE.">
 <style>
   .viz-root {
     color-scheme: light;
@@ -109,11 +109,15 @@
   .dot-2 { fill: var(--series-2); }
   .crosshair { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
   .tooltip {
-    position: absolute; pointer-events: none; background: var(--surface-1);
-    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px;
-    font-size: 12px; color: var(--text-primary); box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    position: absolute; pointer-events: none; background: rgba(20, 19, 17, 0.92);
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 10px;
+    font-size: 12px; color: #ffffff; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
     opacity: 0; transform: translate(-50%, -110%); white-space: nowrap;
   }
+  .tooltip strong { color: #ffffff; }
+  .tooltip .fila { display: flex; justify-content: space-between; gap: 14px; color: rgba(255,255,255,0.85); }
+  .tooltip .total { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 4px; padding-top: 4px; font-weight: 600; color: #ffffff; }
   .chart-shell { position: relative; }
 
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -159,7 +163,7 @@
   .cadena-bar-fill {
     height: 100%; background: var(--series-1); border-radius: 4px 0 0 4px;
     display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
-    min-width: 2px; transition: width .3s ease;
+    min-width: 2px; transition: width .3s ease; cursor: help;
   }
   .cadena-bar-fill .valor { font-size: 11.5px; color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .cadena-pendiente {
@@ -177,9 +181,8 @@
     <header class="hero">
       <h1>🌭 Índice del Completo</h1>
       <div class="sub">
-        Cuánto cuesta armar un completo italiano (vienesa + mayonesa + palta + tomate) en
-        Líder, Jumbo, Unimarc, Santa Isabel y otras cadenas de Chile — comparado entre ellas
-        y contra el IPC oficial del INE. Base 100 en el día que partió la medición.
+        Cuánto cuesta armar un completo italiano en las distintas cadenas de supermercados
+        de Chile — comparado entre ellas y contra el IPC oficial del INE.
       </div>
     </header>
 
@@ -392,6 +395,9 @@
   }
 
   // ---------- comparador por cadena ----------
+  var EMOJI_CATEGORIA = { salchicha: "🌭", mayonesa: "🧴", palta: "🥑", tomate: "🍅" };
+  var NOMBRE_CATEGORIA = { salchicha: "Vienesa", mayonesa: "Mayonesa", palta: "Palta", tomate: "Tomate" };
+
   function renderCadenas(container, cadenas) {
     container.innerHTML = "";
     var conDato = cadenas.filter(function (c) { return c.precio_completo_clp !== null; });
@@ -401,19 +407,32 @@
       : 1;
 
     var tooltip = document.getElementById("tooltip");
-    function mostrarTooltip(el, texto) {
+    function mostrarTooltip(el, htmlContenido) {
       var rect = el.getBoundingClientRect();
       tooltip.style.opacity = 1;
       tooltip.style.left = rect.left + rect.width / 2 + window.scrollX + "px";
       tooltip.style.top = rect.top + window.scrollY - 8 + "px";
       tooltip.style.whiteSpace = "normal";
-      tooltip.style.maxWidth = "260px";
-      tooltip.innerHTML = "<strong>¿Por qué no hay dato?</strong><br>" + texto;
+      tooltip.style.maxWidth = "270px";
+      tooltip.innerHTML = htmlContenido;
     }
     function ocultarTooltip() {
       tooltip.style.opacity = 0;
       tooltip.style.whiteSpace = "";
       tooltip.style.maxWidth = "";
+    }
+
+    function htmlDesglose(c) {
+      var filas = (c.desglose || []).map(function (item) {
+        var emoji = EMOJI_CATEGORIA[item.categoria] || "•";
+        var nombre = NOMBRE_CATEGORIA[item.categoria] || item.categoria;
+        var precioUnit = fmtCLP(item.precio_unitario) + "/" + item.unidad;
+        return '<div class="fila"><span>' + emoji + " " + nombre +
+          ' <span style="opacity:.65">(' + item.gramos_racion + "g a " + precioUnit + ")</span></span>" +
+          "<span>" + fmtCLP(item.aporte_clp) + "</span></div>";
+      }).join("");
+      return "<strong>Cómo se arma el completo en " + c.nombre + "</strong>" + filas +
+        '<div class="total"><span>Total ración</span><span>' + fmtCLP(c.precio_completo_clp) + "</span></div>";
     }
 
     conDato.forEach(function (c) {
@@ -422,9 +441,15 @@
       row.className = "cadena-row";
       row.innerHTML =
         '<div class="cadena-nombre"><a href="' + c.url + '" target="_blank" rel="noopener">' + c.nombre + "</a></div>" +
-        '<div class="cadena-bar-track"><div class="cadena-bar-fill" style="width:' + pct.toFixed(1) + '%">' +
+        '<div class="cadena-bar-track"><div class="cadena-bar-fill" style="width:' + pct.toFixed(1) + '%" tabindex="0" role="button" aria-label="Ver desglose de precio">' +
         '<span class="valor">' + fmtCLP(c.precio_completo_clp) + "</span></div></div>";
       container.appendChild(row);
+
+      var fill = row.querySelector(".cadena-bar-fill");
+      fill.addEventListener("mouseenter", function () { mostrarTooltip(fill, htmlDesglose(c)); });
+      fill.addEventListener("mouseleave", ocultarTooltip);
+      fill.addEventListener("focus", function () { mostrarTooltip(fill, htmlDesglose(c)); });
+      fill.addEventListener("blur", ocultarTooltip);
     });
 
     sinDato.forEach(function (c) {
@@ -453,9 +478,10 @@
       razonTrigger.tabIndex = 0;
       razonTrigger.setAttribute("role", "button");
       var texto = c.razon_corta || "No se pudo obtener el precio de forma automática.";
-      razonTrigger.addEventListener("mouseenter", function () { mostrarTooltip(razonTrigger, texto); });
+      var htmlRazon = "<strong>¿Por qué no hay dato?</strong><br>" + texto;
+      razonTrigger.addEventListener("mouseenter", function () { mostrarTooltip(razonTrigger, htmlRazon); });
       razonTrigger.addEventListener("mouseleave", ocultarTooltip);
-      razonTrigger.addEventListener("focus", function () { mostrarTooltip(razonTrigger, texto); });
+      razonTrigger.addEventListener("focus", function () { mostrarTooltip(razonTrigger, htmlRazon); });
       razonTrigger.addEventListener("blur", ocultarTooltip);
 
       pendienteDiv.appendChild(badge);

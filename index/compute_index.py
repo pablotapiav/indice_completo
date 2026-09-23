@@ -159,6 +159,27 @@ def main() -> int:
     for clave, meta in config["cadenas"].items():
         serie = series_por_cadena.get(clave, [])
         ultimo = serie[-1] if serie else None
+
+        desglose = None
+        if ultimo:
+            precios_categoria = precios_por_cadena.get(clave, {}).get(ultimo["fecha"], {})
+            desglose = []
+            for categoria, gramos in gramos_racion.items():
+                precio_unitario = precios_categoria.get(categoria)
+                if precio_unitario is None:
+                    continue
+                unidad = "kg" if categoria in CATEGORIAS_UNIDAD_KG else "100g"
+                factor = gramos / 1000 if unidad == "kg" else gramos / 100
+                desglose.append(
+                    {
+                        "categoria": categoria,
+                        "precio_unitario": precio_unitario,
+                        "unidad": unidad,
+                        "gramos_racion": gramos,
+                        "aporte_clp": round(precio_unitario * factor, 2),
+                    }
+                )
+
         cadenas_catalogo.append(
             {
                 "clave": clave,
@@ -169,6 +190,7 @@ def main() -> int:
                 "razon_pendiente": meta.get("razon"),
                 "precio_completo_clp": ultimo["precio_completo_clp"] if ultimo else None,
                 "fecha": ultimo["fecha"] if ultimo else None,
+                "desglose": desglose,
             }
         )
     cadenas_catalogo.sort(key=lambda c: (c["precio_completo_clp"] is None, c["precio_completo_clp"] or 0))

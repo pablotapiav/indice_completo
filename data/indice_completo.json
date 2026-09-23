@@ -4,7 +4,7 @@
   "_nota_regional": "docs/LIMITACION_REGIONAL.md",
   "base_periodo": "2026-09-23",
   "costo_racion_base_clp": 1008.09,
-  "generado_en": "2026-09-23T19:54:46.735215+00:00",
+  "generado_en": "2026-09-23T20:00:56.694302+00:00",
   "serie_nacional": [
     {
       "fecha": "2026-09-23",
@@ -21,7 +21,37 @@
       "razon_corta": null,
       "razon_pendiente": null,
       "precio_completo_clp": 567.11,
-      "fecha": "2026-09-23"
+      "fecha": "2026-09-23",
+      "desglose": [
+        {
+          "categoria": "salchicha",
+          "precio_unitario": 459.0,
+          "unidad": "100g",
+          "gramos_racion": 70,
+          "aporte_clp": 321.3
+        },
+        {
+          "categoria": "mayonesa",
+          "precio_unitario": 248.75,
+          "unidad": "100g",
+          "gramos_racion": 15,
+          "aporte_clp": 37.31
+        },
+        {
+          "categoria": "palta",
+          "precio_unitario": 3000.0,
+          "unidad": "kg",
+          "gramos_racion": 50,
+          "aporte_clp": 150.0
+        },
+        {
+          "categoria": "tomate",
+          "precio_unitario": 1950.0,
+          "unidad": "kg",
+          "gramos_racion": 30,
+          "aporte_clp": 58.5
+        }
+      ]
     },
     {
       "clave": "jumbo",
@@ -31,7 +61,37 @@
       "razon_corta": null,
       "razon_pendiente": null,
       "precio_completo_clp": 1149.12,
-      "fecha": "2026-09-23"
+      "fecha": "2026-09-23",
+      "desglose": [
+        {
+          "categoria": "salchicha",
+          "precio_unitario": 1086.84,
+          "unidad": "100g",
+          "gramos_racion": 70,
+          "aporte_clp": 760.79
+        },
+        {
+          "categoria": "mayonesa",
+          "precio_unitario": 482.89,
+          "unidad": "100g",
+          "gramos_racion": 15,
+          "aporte_clp": 72.43
+        },
+        {
+          "categoria": "palta",
+          "precio_unitario": 4740.0,
+          "unidad": "kg",
+          "gramos_racion": 50,
+          "aporte_clp": 237.0
+        },
+        {
+          "categoria": "tomate",
+          "precio_unitario": 2630.0,
+          "unidad": "kg",
+          "gramos_racion": 30,
+          "aporte_clp": 78.9
+        }
+      ]
     },
     {
       "clave": "santaisabel",
@@ -41,7 +101,37 @@
       "razon_corta": null,
       "razon_pendiente": null,
       "precio_completo_clp": 1308.04,
-      "fecha": "2026-09-23"
+      "fecha": "2026-09-23",
+      "desglose": [
+        {
+          "categoria": "salchicha",
+          "precio_unitario": 1118.42,
+          "unidad": "100g",
+          "gramos_racion": 70,
+          "aporte_clp": 782.89
+        },
+        {
+          "categoria": "mayonesa",
+          "precio_unitario": 449.0,
+          "unidad": "100g",
+          "gramos_racion": 15,
+          "aporte_clp": 67.35
+        },
+        {
+          "categoria": "palta",
+          "precio_unitario": 5490.0,
+          "unidad": "kg",
+          "gramos_racion": 50,
+          "aporte_clp": 274.5
+        },
+        {
+          "categoria": "tomate",
+          "precio_unitario": 6110.0,
+          "unidad": "kg",
+          "gramos_racion": 30,
+          "aporte_clp": 183.3
+        }
+      ]
     },
     {
       "clave": "lider",
@@ -51,7 +141,8 @@
       "razon_corta": "Por política del sitio: su robots.txt le prohíbe a cualquier bot leer páginas con precio.",
       "razon_pendiente": "robots.txt de lider.cl deshabilita explícitamente /search*, /catalogo/product*, /catalogo/category*, /supermercado/product*, /supermercado/category* y /supermercado* para cualquier bot genérico (solo permite Googlebot). Se respeta esa señal: no se scrapea, ni con cliente HTTP simple ni con navegador automatizado (Playwright habría sido evasión, no cumplimiento). Precio pendiente de captura manual.",
       "precio_completo_clp": null,
-      "fecha": null
+      "fecha": null,
+      "desglose": null
     },
     {
       "clave": "unimarc",
@@ -61,7 +152,8 @@
       "razon_corta": "El sitio bloquea automáticamente a cualquier bot (protección anti-bot tipo Akamai), incluso para leer su robots.txt.",
       "razon_pendiente": "Bloqueo activo tipo Akamai: incluso /robots.txt devuelve 403. No se intenta evadir la protección anti-bot. Precio pendiente de captura manual.",
       "precio_completo_clp": null,
-      "fecha": null
+      "fecha": null,
+      "desglose": null
     },
     {
       "clave": "mayorista10",
@@ -71,7 +163,8 @@
       "razon_corta": "Mismo bloqueo anti-bot que Unimarc (misma empresa, SMU).",
       "razon_pendiente": "Mismo bloqueo Akamai que Unimarc (ambas marcas de SMU, mismo backend/protección). Precio pendiente de captura manual.",
       "precio_completo_clp": null,
-      "fecha": null
+      "fecha": null,
+      "desglose": null
     },
     {
       "clave": "alvi",
@@ -81,7 +174,8 @@
       "razon_corta": "Mismo bloqueo anti-bot que Unimarc y Mayorista 10 (misma empresa, SMU).",
       "razon_pendiente": "Mismo bloqueo Akamai que Unimarc y Mayorista 10 (marca SMU). Precio pendiente de captura manual.",
       "precio_completo_clp": null,
-      "fecha": null
+      "fecha": null,
+      "desglose": null
     },
     {
       "clave": "tottus",
@@ -91,7 +185,8 @@
       "razon_corta": "Su catálogo no responde de forma estable (error del servidor); no se pudo acceder a los precios.",
       "razon_pendiente": "robots.txt permite scrapear catálogo, pero el sitio no corre en VTEX (a diferencia de Jumbo/Santa Isabel) y el endpoint probado devuelve 503 de forma consistente. Queda como candidato futuro para reverse-engineering de su API real. Precio pendiente de captura manual.",
       "precio_completo_clp": null,
-      "fecha": null
+      "fecha": null,
+      "desglose": null
     }
   ]
 }
