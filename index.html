@@ -128,7 +128,7 @@
   }
   .card h2 { font-size: 15px; margin: 0 0 2px; font-weight: 600; }
   .card .card-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; }
-  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .view-toggle-row { display: flex; justify-content: flex-end; margin-bottom: 12px; }
 
   .view-toggle {
     display: inline-flex; background: var(--gridline); border-radius: 999px; padding: 3px;
@@ -261,11 +261,9 @@
     </header>
 
     <section class="card">
-      <div class="card-header">
-        <div>
-          <h2 id="chartTitulo">Índice del Completo (IdC) vs. IPC oficial</h2>
-          <div class="card-sub" id="chartSubtitulo">Ambas series en la misma base 100, para comparar variación acumulada — no niveles.</div>
-        </div>
+      <h2 id="chartTitulo">Índice del Completo (IdC) vs. IPC oficial</h2>
+      <div class="card-sub" id="chartSubtitulo">Ambas series en la misma base 100, para comparar variación acumulada — no niveles.</div>
+      <div class="view-toggle-row">
         <div class="view-toggle" id="viewToggle">
           <button type="button" data-vista="ipc" class="activo">Vs. IPC</button>
           <button type="button" data-vista="cadenas">Por cadena</button>
