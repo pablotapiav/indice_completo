@@ -128,7 +128,8 @@
   }
   .card h2 { font-size: 15px; margin: 0 0 2px; font-weight: 600; }
   .card .card-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; }
-  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .card-header > div:first-child { min-width: 0; flex: 1 1 auto; }
 
   .view-toggle {
     display: inline-flex; background: var(--gridline); border-radius: 999px; padding: 3px;
@@ -140,11 +141,6 @@
     transition: background .15s ease, color .15s ease;
   }
   .view-toggle button.activo { background: var(--surface-1); color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-
-  @media (max-width: 700px) {
-    .card-header { justify-content: center; }
-    .view-toggle { margin-top: 6px; }
-  }
 
   .stat-row { display: flex; gap: 14px; flex-wrap: wrap; }
   .stat-tile {
