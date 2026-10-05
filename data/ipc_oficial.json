@@ -2,7 +2,7 @@
   "_descripcion": "IPC oficial (INE), variacion mensual encadenada a indice base 100 en el mismo periodo base del Indice del Completo.",
   "_fuente": "mindicador.cl (replica publica y gratuita de series del Banco Central / INE)",
   "base_periodo_mes": "2026-09",
-  "generado_en": "2026-09-28T17:29:31.261941+00:00",
+  "generado_en": "2026-10-05T18:07:13.398632+00:00",
   "serie": [
     {
       "mes": "2023-06",
