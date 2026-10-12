@@ -11,14 +11,14 @@ publica el IPC ~el dia 8 del mes siguiente). Si todas fallan, se conserva el
 archivo anterior y el job no se cae.
 
 Fuentes (prioridad):
-  1. Banco Central (BDE, SieteRestWS) - oficial; requiere credenciales gratuitas
-     en BCCH_USER / BCCH_PASS (se omite si no estan definidas). La serie se
-     puede cambiar con BCCH_SERIE_IPC (variacion mensual %).
-  2. mindicador.cl - publica, sin credenciales.
-  3. boostr.cl - publica, sin credenciales.
-  4. INE (ine.gob.cl) leido como texto via r.jina.ai - sin credenciales. Solo
+  1. INE (ine.gob.cl) leido como texto via r.jina.ai - sin credenciales. Solo
      entrega el ULTIMO mes publicado, asi que las variaciones se acumulan en
-     data/ipc_oficial.json ("variaciones") de una corrida a otra.
+     data/ipc_oficial.json ("variaciones", una por mes: repetir el mismo mes
+     en otra semana sobreescribe, no vuelve a sumar).
+  2. Banco Central (BDE, SieteRestWS) - requiere credenciales gratuitas en
+     BCCH_USER / BCCH_PASS (se omite si no estan). Serie en BCCH_SERIE_IPC.
+  3. mindicador.cl - publica, sin credenciales.
+  4. boostr.cl - publica, sin credenciales.
 
 Salida: data/ipc_oficial.json
 """
@@ -153,10 +153,10 @@ def fuente_ine_jina() -> list[dict]:
 
 # (nombre, funcion, minimo de puntos exigidos a la fuente)
 FUENTES = [
+    ("INE via r.jina.ai", fuente_ine_jina, 1),  # solo ultimo mes; se acumula
     ("Banco Central (BDE)", fuente_bcentral, MIN_PUNTOS),
     ("mindicador.cl", fuente_mindicador, MIN_PUNTOS),
     ("boostr.cl", fuente_boostr, MIN_PUNTOS),
-    ("INE via r.jina.ai", fuente_ine_jina, 1),  # solo ultimo mes; se acumula
 ]
 
 
