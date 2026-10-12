@@ -38,11 +38,27 @@ IdC_t = 100 × Σ(q0_i × p_i,t) / Σ(q0_i × p_i,0)
 - `q0_i`: gramos fijos de la ración (tabla de arriba).
 
 Esto da un costo de ración **por cadena** cada día (lo que se muestra en el
-comparador del sitio). La serie nacional (`serie_nacional` en
-`data/indice_completo.json`) es el **promedio simple del costo de la ración
-entre las cadenas con dato ese día** — ver sección 5. El costo de la ración
-el día base queda registrado en `data/indice_completo.json` →
-`costo_racion_base_clp`.
+comparador del sitio). El costo de la ración el día base queda registrado en
+`data/indice_completo.json` → `costo_racion_base_clp`.
+
+### Índice nacional (serie temporal)
+
+La serie nacional (`serie_nacional`) **no** se calcula promediando los costos
+de las cadenas y dividiendo por el promedio base: si una cadena entra o sale
+de la muestra, el promedio salta aunque ningún precio cambie (efecto
+composición). En su lugar es un **índice encadenado de modelo emparejado**:
+
+```
+IdC_t = IdC_{t-1} × media geométrica sobre c ∈ (cadenas con dato en t-1 y en t) de ( costo_c,t / costo_c,t-1 )
+```
+
+con `IdC = 100` en la primera fecha. Solo participan las cadenas presentes
+en ambas fechas consecutivas, así que sumar o perder una cadena no mueve el
+índice. Si dos fechas consecutivas no comparten ninguna cadena no hay cómo
+medir la variación: se repite el valor anterior y el punto lleva
+`sin_enlace: true`. El campo `precio_completo_clp` nacional (promedio de los
+costos de las cadenas con dato ese día, `n_cadenas`) se conserva solo como
+dato informativo; **no** entra al cálculo del índice.
 
 ## 3. De dónde salen los precios
 
@@ -127,10 +143,10 @@ ninguna cadena regional con precios publicados online fuera de las grandes
 cadenas nacionales.
 
 Por eso el índice compara **cadenas entre sí**, no regiones. El índice
-nacional (`serie_nacional` en `data/indice_completo.json`) es el
-**promedio del costo de la ración entre las cadenas que tienen dato
-completo ese día** — hoy Jumbo y Santa Isabel; se recalcula solo cuando se
-suma una cadena nueva (scrapeada o vía captura manual en
+nacional (`serie_nacional` en `data/indice_completo.json`) se encadena con
+las cadenas que tienen dato completo en fechas consecutivas (ver sección 2) —
+hoy Jumbo, Santa Isabel y, en parte, aCuenta; se ajusta solo cuando se suma
+una cadena nueva (scrapeada o vía captura manual en
 `data/precios_manuales_cadena.csv`), sin tocar el resto del pipeline.
 
 Si en el futuro aparece una cadena real, acotada a una sola región, con
@@ -140,12 +156,17 @@ mano, `data/precios_manuales_cadena.csv` es el punto de entrada — ver
 
 ## 6. Comparación con el IPC oficial
 
-El IPC oficial (INE) se obtiene de [mindicador.cl](https://mindicador.cl),
-una API pública y gratuita que replica series del Banco Central/INE
-(variación mensual, %). `index/fetch_ipc_oficial.py` encadena esas
-variaciones mensuales en un índice base 100, anclado en el mismo mes en que
-partió la medición del IdC, para que ambas series se puedan graficar en el
-mismo eje sin normalizar niveles distintos.
+El IPC oficial (INE) se lee del sitio del INE (variación mensual, %, base
+anual 2023=100) mediante un pool de fuentes con fallback
+(`index/fetch_ipc_oficial.py`: INE vía r.jina.ai, Banco Central, mindicador.cl
+y boostr.cl). El INE solo muestra el último mes, así que las variaciones se
+acumulan por mes de referencia en `data/ipc_oficial.json` (`variaciones`).
+
+Se encadenan en un índice base 100 anclado en el mes en que partió la
+medición del IdC (`IPC_{M+1} = IPC_M × (1 + var_M)`): la variación publicada
+para el mes M rige todo el mes M+1, en forma de escalera, hasta que se
+publica la siguiente. Al estar publicada con un decimal, el encadenado
+acumula un error de redondeo de hasta ±0,05 puntos porcentuales por mes.
 
 **Ojo con la comparación:** el IPC oficial mide la variación de precios de
 una canasta de cientos de bienes y servicios representativa del gasto de los

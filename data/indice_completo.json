@@ -1,15 +1,16 @@
 {
-  "_descripcion": "Indice del Completo (IdC): Laspeyres base 100 sobre salchicha+mayonesa+palta+tomate, comparado ENTRE CADENAS.",
+  "_descripcion": "Indice del Completo (IdC): canasta fija (Laspeyres por cadena) sobre salchicha+mayonesa+palta+tomate, comparado ENTRE CADENAS; indice nacional encadenado de modelo emparejado (media geometrica de variaciones de las cadenas presentes en ambas fechas), base 100.",
   "_metodologia": "docs/METODOLOGIA.md",
   "_nota_regional": "docs/LIMITACION_REGIONAL.md",
   "base_periodo": "2026-09-23",
   "costo_racion_base_clp": 1008.09,
-  "generado_en": "2026-10-05T18:07:10.727045+00:00",
+  "generado_en": "2026-10-12T22:13:36.697175+00:00",
   "serie_nacional": [
     {
       "fecha": "2026-09-23",
       "precio_completo_clp": 1008.09,
       "indice": 100.0,
+      "n_cadenas": 3,
       "desglose": [
         {
           "categoria": "salchicha",
@@ -44,7 +45,8 @@
     {
       "fecha": "2026-09-28",
       "precio_completo_clp": 1228.58,
-      "indice": 121.87,
+      "indice": 100.0,
+      "n_cadenas": 2,
       "desglose": [
         {
           "categoria": "salchicha",
@@ -79,7 +81,8 @@
     {
       "fecha": "2026-10-05",
       "precio_completo_clp": 1223.41,
-      "indice": 121.36,
+      "indice": 99.47,
+      "n_cadenas": 2,
       "desglose": [
         {
           "categoria": "salchicha",
