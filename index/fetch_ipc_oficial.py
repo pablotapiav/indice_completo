@@ -197,33 +197,38 @@ def obtener_serie_mensual() -> tuple[str, list[dict]]:
     raise RuntimeError("; ".join(errores))
 
 
+def _mes_mas(mes: str, n: int) -> str:
+    t = int(mes[:4]) * 12 + int(mes[5:7]) - 1 + n
+    return f"{t // 12}-{t % 12 + 1:02d}"
+
+
 def encadenar_base_100(serie_mensual: list[dict], mes_base: str) -> list[dict]:
-    """Construye un indice base 100 en `mes_base`, encadenando variaciones %."""
-    meses = [p["mes"] for p in serie_mensual]
-    if mes_base not in meses:
-        # Si el mes base exacto no esta en la serie oficial (ej. mes en curso
-        # aun no publicado por el INE), se ancla en el mes disponible mas
-        # cercano hacia atras.
-        anteriores = [m for m in meses if m <= mes_base]
-        mes_base = anteriores[-1] if anteriores else meses[0]
+    """Indice base 100 en `mes_base`, con la variacion del mes M aplicada al mes M+1.
 
-    idx_base = meses.index(mes_base)
-    indices = [None] * len(serie_mensual)
-    indices[idx_base] = 100.0
+    El INE publica la variacion de M recien a principios de M+1, asi que ese
+    valor rige todo M+1 (en forma de escalera) hasta que se publique el
+    siguiente. Ej.: base septiembre = 100; el 0,4% de septiembre -> octubre
+    = 100,4 todo el mes; en noviembre entra la variacion de octubre.
+    """
+    var = {p["mes"]: p["variacion_pct"] / 100 for p in serie_mensual}
+    if not var:
+        return []
+    if mes_base not in var:
+        # Mes base aun sin variacion publicada (o fuera de la serie): se ancla
+        # en el mes con dato mas cercano hacia atras, o en el primero.
+        anteriores = [m for m in sorted(var) if m <= mes_base]
+        mes_base = anteriores[-1] if anteriores else min(var)
 
-    # Hacia adelante desde la base.
-    for i in range(idx_base + 1, len(serie_mensual)):
-        var = serie_mensual[i]["variacion_pct"] / 100
-        indices[i] = round(indices[i - 1] * (1 + var), 4)
-
-    # Hacia atras desde la base.
-    for i in range(idx_base - 1, -1, -1):
-        var = serie_mensual[i + 1]["variacion_pct"] / 100
-        indices[i] = round(indices[i + 1] / (1 + var), 4)
-
-    return [
-        {"mes": p["mes"], "indice": indices[i]} for i, p in enumerate(serie_mensual)
-    ]
+    idx = {mes_base: 100.0}
+    m = mes_base
+    while m in var:  # hacia adelante: indice(M+1) = indice(M) * (1 + var(M))
+        idx[_mes_mas(m, 1)] = round(idx[m] * (1 + var[m]), 4)
+        m = _mes_mas(m, 1)
+    m = mes_base
+    while _mes_mas(m, -1) in var:  # hacia atras: indice(M-1) = indice(M) / (1 + var(M-1))
+        idx[_mes_mas(m, -1)] = round(idx[m] / (1 + var[_mes_mas(m, -1)]), 4)
+        m = _mes_mas(m, -1)
+    return [{"mes": mes, "indice": idx[mes]} for mes in sorted(idx)]
 
 
 def _meses_consecutivos(a: str, b: str) -> bool:
@@ -275,7 +280,7 @@ def main() -> int:
     serie_indexada = encadenar_base_100(serie_mensual, mes_base)
 
     salida = {
-        "_descripcion": "IPC oficial (INE), variacion mensual encadenada a indice base 100 en el mismo periodo base del Indice del Completo.",
+        "_descripcion": "IPC oficial (INE), indice base 100 en el mismo periodo base del Indice del Completo. La variacion publicada para el mes M se aplica al mes M+1 (escalera). `variaciones` guarda las variaciones por mes de referencia.",
         "_fuente": fuente,
         "base_periodo_mes": mes_base,
         "generado_en": datetime.now(timezone.utc).isoformat(),
