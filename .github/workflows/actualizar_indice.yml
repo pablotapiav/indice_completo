@@ -7,7 +7,9 @@ on:
   workflow_dispatch: {}
 
 # Permisos mínimos: solo lo necesario para que el job pueda escribir el
-# commit con los datos nuevos. No se usan secrets ni tokens externos.
+# commit con los datos nuevos. Los secrets BCCH_USER/BCCH_PASS son OPCIONALES
+# (credenciales gratuitas de la API del Banco Central); sin ellos se usan las
+# fuentes publicas del pool.
 permissions:
   contents: write
 
@@ -34,7 +36,10 @@ jobs:
       - name: Calcular Índice del Completo (base 100)
         run: python -m index.compute_index
 
-      - name: Traer IPC oficial (mindicador.cl)
+      - name: Traer IPC oficial (pool de fuentes con fallback)
+        env:
+          BCCH_USER: ${{ secrets.BCCH_USER }}
+          BCCH_PASS: ${{ secrets.BCCH_PASS }}
         run: python -m index.fetch_ipc_oficial
 
       - name: Commit de los datos actualizados
