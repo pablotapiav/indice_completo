@@ -16,6 +16,9 @@ Fuentes (prioridad):
      puede cambiar con BCCH_SERIE_IPC (variacion mensual %).
   2. mindicador.cl - publica, sin credenciales.
   3. boostr.cl - publica, sin credenciales.
+  4. INE (ine.gob.cl) leido como texto via r.jina.ai - sin credenciales. Solo
+     entrega el ULTIMO mes publicado, asi que las variaciones se acumulan en
+     data/ipc_oficial.json ("variaciones") de una corrida a otra.
 
 Salida: data/ipc_oficial.json
 """
@@ -25,6 +28,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import time
 import urllib.parse
@@ -49,14 +53,14 @@ BCCH_URL = "https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx"
 BCCH_SERIE_DEFECTO = "F074.IPC.VAR.Z.EP23.C.M"
 
 
-def _get_json(url: str) -> dict:
+def _get_texto(url: str, accept: str = "application/json") -> str:
     """GET con reintentos y backoff exponencial ante caidas pasajeras."""
     ultimo_error: Exception | None = None
     for intento in range(1, REINTENTOS + 1):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
+            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": accept})
             with urllib.request.urlopen(req, timeout=TIMEOUT_S) as resp:
-                return json.loads(resp.read().decode("utf-8"))
+                return resp.read().decode("utf-8")
         except Exception as exc:  # noqa: BLE001
             ultimo_error = exc
             if intento < REINTENTOS:
@@ -64,6 +68,10 @@ def _get_json(url: str) -> dict:
                 print(f"[AVISO]   intento {intento}/{REINTENTOS} fallo ({exc}); reintento en {espera}s", file=sys.stderr)
                 time.sleep(espera)
     raise ultimo_error  # type: ignore[misc]
+
+
+def _get_json(url: str) -> dict:
+    return json.loads(_get_texto(url))
 
 
 def _a_mes(texto: str) -> str:
@@ -117,20 +125,48 @@ def fuente_boostr() -> list[dict]:
     return out
 
 
+URL_INE_IPC = "https://www.ine.gob.cl/estadisticas-por-tema/precios-e-inflacion/indice-de-precios-al-consumidor"
+MESES_ES = {m: i for i, m in enumerate(
+    ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+     "septiembre", "octubre", "noviembre", "diciembre"], start=1)}
+_RE_INE = re.compile(
+    r"(-?\d+(?:[.,]\d+)?)\s*%\s*Variaci[oó]n\s+mensual\s+([A-Za-zÁÉÍÓÚáéíóúñ]+)\s+(\d{4})",
+    re.IGNORECASE,
+)
+
+
+def parsear_ine_texto(texto: str) -> list[dict]:
+    """Extrae '0,4% Variacion mensual septiembre 2026' del texto de la pagina del INE."""
+    m = _RE_INE.search(texto)
+    if not m:
+        raise ValueError("no se encontro 'Variacion mensual <mes> <anio>' en la pagina del INE")
+    mes = MESES_ES.get(m.group(2).lower())
+    if not mes:
+        raise ValueError(f"mes desconocido: {m.group(2)}")
+    return [{"mes": f"{m.group(3)}-{mes:02d}", "variacion_pct": _num(m.group(1))}]
+
+
+def fuente_ine_jina() -> list[dict]:
+    texto = _get_texto("https://r.jina.ai/" + URL_INE_IPC, accept="text/plain")
+    return parsear_ine_texto(texto)
+
+
+# (nombre, funcion, minimo de puntos exigidos a la fuente)
 FUENTES = [
-    ("Banco Central (BDE)", fuente_bcentral),
-    ("mindicador.cl", fuente_mindicador),
-    ("boostr.cl", fuente_boostr),
+    ("Banco Central (BDE)", fuente_bcentral, MIN_PUNTOS),
+    ("mindicador.cl", fuente_mindicador, MIN_PUNTOS),
+    ("boostr.cl", fuente_boostr, MIN_PUNTOS),
+    ("INE via r.jina.ai", fuente_ine_jina, 1),  # solo ultimo mes; se acumula
 ]
 
 
-def validar_serie(serie: list[dict], hoy: date | None = None) -> None:
+def validar_serie(serie: list[dict], hoy: date | None = None, min_puntos: int = MIN_PUNTOS) -> None:
     """Lanza ValueError si la serie no sirve (corta, rara o desactualizada)."""
     hoy = hoy or datetime.now(timezone.utc).date()
-    if len(serie) < MIN_PUNTOS:
+    if len(serie) < min_puntos:
         raise ValueError(f"serie muy corta ({len(serie)} puntos)")
     meses = [p["mes"] for p in serie]
-    if any(len(m) != 7 or m[4] != "-" for m in meses):
+    if any(not re.fullmatch(r"\d{4}-\d{2}", m) for m in meses):
         raise ValueError("fechas con formato inesperado")
     if meses != sorted(set(meses)):
         raise ValueError("meses duplicados o desordenados")
@@ -147,11 +183,11 @@ def validar_serie(serie: list[dict], hoy: date | None = None) -> None:
 def obtener_serie_mensual() -> tuple[str, list[dict]]:
     """Recorre el pool en orden y devuelve (nombre_fuente, serie) de la primera valida."""
     errores = []
-    for nombre, fn in FUENTES:
+    for nombre, fn, min_puntos in FUENTES:
         print(f"[INFO] Probando fuente: {nombre}", file=sys.stderr)
         try:
             serie = sorted(fn(), key=lambda p: p["mes"])
-            validar_serie(serie)
+            validar_serie(serie, min_puntos=min_puntos)
         except Exception as exc:  # noqa: BLE001
             print(f"[AVISO] {nombre} descartada: {exc}", file=sys.stderr)
             errores.append(f"{nombre}: {exc}")
@@ -190,6 +226,33 @@ def encadenar_base_100(serie_mensual: list[dict], mes_base: str) -> list[dict]:
     ]
 
 
+def _meses_consecutivos(a: str, b: str) -> bool:
+    return (int(b[:4]) * 12 + int(b[5:7])) - (int(a[:4]) * 12 + int(a[5:7])) == 1
+
+
+def combinar_con_historial(nueva: list[dict], previas: dict[str, float]) -> list[dict]:
+    """Une la serie nueva con las variaciones acumuladas (la nueva manda) y se
+    queda con el tramo final SIN huecos, porque el encadenado exige meses seguidos."""
+    todas = dict(previas)
+    todas.update({p["mes"]: p["variacion_pct"] for p in nueva})
+    serie = [{"mes": m, "variacion_pct": v} for m, v in sorted(todas.items())]
+    inicio = 0
+    for i in range(1, len(serie)):
+        if not _meses_consecutivos(serie[i - 1]["mes"], serie[i]["mes"]):
+            inicio = i
+    return serie[inicio:]
+
+
+def _variaciones_previas() -> dict[str, float]:
+    if not RUTA_SALIDA.exists():
+        return {}
+    try:
+        previo = json.loads(RUTA_SALIDA.read_text(encoding="utf-8"))
+        return {k: float(v) for k, v in previo.get("variaciones", {}).items()}
+    except (ValueError, OSError):
+        return {}
+
+
 def main() -> int:
     if not RUTA_INDICE.exists():
         print("[ERROR] Corre primero index/compute_index.py para fijar el periodo base.", file=sys.stderr)
@@ -208,6 +271,7 @@ def main() -> int:
             print(f"Se conserva el {RUTA_SALIDA.name} anterior sin actualizar.", file=sys.stderr)
         return 0
 
+    serie_mensual = combinar_con_historial(serie_mensual, _variaciones_previas())
     serie_indexada = encadenar_base_100(serie_mensual, mes_base)
 
     salida = {
@@ -215,6 +279,7 @@ def main() -> int:
         "_fuente": fuente,
         "base_periodo_mes": mes_base,
         "generado_en": datetime.now(timezone.utc).isoformat(),
+        "variaciones": {p["mes"]: p["variacion_pct"] for p in serie_mensual},
         "serie": serie_indexada,
     }
     RUTA_SALIDA.write_text(json.dumps(salida, ensure_ascii=False, indent=2), encoding="utf-8")
