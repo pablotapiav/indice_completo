@@ -13,10 +13,19 @@ fija de la racion (data/productos.json).
 Enfoque: comparador ENTRE CADENAS (Lider, Jumbo, Unimarc, Santa Isabel,
 Mayorista 10, aCuenta, Alvi, Tottus), no entre regiones. El intento original
 de regionalizar el indice se abandonó tras comprobar que no hay forma legítima
-de obtener precio real por región (ver docs/LIMITACION_REGIONAL.md). El
-indice nacional de la serie temporal se calcula como el promedio del costo de
-la ración entre las cadenas que sí tienen dato ese día (scrapeado o cargado a
-mano vía data/precios_manuales_cadena.csv).
+de obtener precio real por región (ver docs/LIMITACION_REGIONAL.md).
+
+Indice nacional (serie temporal): ENCADENADO de modelo emparejado. La
+variacion entre dos fechas consecutivas es la media geometrica de las
+variaciones del costo de la racion SOLO de las cadenas con dato en ambas
+fechas:
+
+    IdC_t = IdC_{t-1} * geomean_c( costo_c,t / costo_c,t-1 )
+
+Asi, que una cadena entre o salga de la muestra (scrapeada o cargada a mano
+vía data/precios_manuales_cadena.csv) no mueve el indice por efecto
+composicion. El "precio_completo_clp" nacional (promedio de niveles) se
+conserva solo como dato informativo; NO se usa para calcular el indice.
 
 Salida: data/indice_completo.json
 """
@@ -25,6 +34,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import sys
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -140,6 +150,31 @@ def construir_serie_cadena(fechas_ordenadas: list[str], precios_cadena: dict[str
     return serie
 
 
+def indice_encadenado(
+    fechas: list[str], costo_por_cadena_fecha: dict[str, dict[str, float]]
+) -> tuple[dict[str, float], dict[str, bool]]:
+    """Indice base 100 en fechas[0], encadenando la media geometrica de las
+    variaciones de las cadenas presentes en AMBAS fechas consecutivas.
+
+    Si dos fechas consecutivas no comparten ninguna cadena no hay como medir la
+    variacion: se repite el indice anterior y se marca enlazado=False.
+    """
+    indices = {fechas[0]: 100.0}
+    enlazado = {fechas[0]: True}
+    for previa, actual in zip(fechas, fechas[1:]):
+        comunes = set(costo_por_cadena_fecha[previa]) & set(costo_por_cadena_fecha[actual])
+        if not comunes:
+            indices[actual] = indices[previa]
+            enlazado[actual] = False
+            continue
+        log_suma = sum(
+            math.log(costo_por_cadena_fecha[actual][c] / costo_por_cadena_fecha[previa][c]) for c in comunes
+        )
+        indices[actual] = indices[previa] * math.exp(log_suma / len(comunes))
+        enlazado[actual] = True
+    return indices, enlazado
+
+
 def main() -> int:
     config = cargar_config()
     gramos_racion = cargar_racion(config)
@@ -179,19 +214,27 @@ def main() -> int:
     costo_promedio_por_fecha = {f: round(sum(v) / len(v), 2) for f, v in costo_por_fecha.items()}
     costo_base = costo_promedio_por_fecha[fechas_con_dato[0]]
 
+    costo_cadena_fecha: dict[str, dict[str, float]] = defaultdict(dict)
+    for cadena, serie in series_por_cadena.items():
+        for punto in serie:
+            costo_cadena_fecha[punto["fecha"]][cadena] = punto["precio_completo_clp"]
+    indices, enlazado = indice_encadenado(fechas_con_dato, costo_cadena_fecha)
+
     serie_nacional = []
     for fecha in fechas_con_dato:
         precios_promedio_categoria = {
             cat: round(sum(valores) / len(valores), 2) for cat, valores in categoria_por_fecha[fecha].items()
         }
-        serie_nacional.append(
-            {
-                "fecha": fecha,
-                "precio_completo_clp": costo_promedio_por_fecha[fecha],
-                "indice": round(100 * costo_promedio_por_fecha[fecha] / costo_base, 2),
-                "desglose": calcular_desglose(precios_promedio_categoria, gramos_racion),
-            }
-        )
+        punto_nacional = {
+            "fecha": fecha,
+            "precio_completo_clp": costo_promedio_por_fecha[fecha],
+            "indice": round(indices[fecha], 2),
+            "n_cadenas": len(costo_por_fecha[fecha]),
+            "desglose": calcular_desglose(precios_promedio_categoria, gramos_racion),
+        }
+        if not enlazado[fecha]:
+            punto_nacional["sin_enlace"] = True  # sin cadenas en comun con la fecha previa: indice repetido
+        serie_nacional.append(punto_nacional)
 
     # Snapshot "hoy" por cadena, para el comparador. Incluye TODAS las cadenas
     # definidas en productos.json (incluidas las pendientes de captura manual,
@@ -217,7 +260,7 @@ def main() -> int:
     cadenas_catalogo.sort(key=lambda c: (c["precio_completo_clp"] is None, c["precio_completo_clp"] or 0))
 
     salida = {
-        "_descripcion": "Indice del Completo (IdC): Laspeyres base 100 sobre salchicha+mayonesa+palta+tomate, comparado ENTRE CADENAS.",
+        "_descripcion": "Indice del Completo (IdC): canasta fija (Laspeyres por cadena) sobre salchicha+mayonesa+palta+tomate, comparado ENTRE CADENAS; indice nacional encadenado de modelo emparejado (media geometrica de variaciones de las cadenas presentes en ambas fechas), base 100.",
         "_metodologia": "docs/METODOLOGIA.md",
         "_nota_regional": "docs/LIMITACION_REGIONAL.md",
         "base_periodo": fechas_con_dato[0],

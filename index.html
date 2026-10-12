@@ -629,7 +629,7 @@
     var serie = indiceData.serie_nacional;
     var ultimo = serie[serie.length - 1];
     var base = serie[0];
-    var deltaPct = ((ultimo.precio_completo_clp / base.precio_completo_clp) - 1) * 100;
+    var deltaPct = ultimo.indice - 100; // el indice ya es base 100 y encadenado; no comparar niveles de costo entre fechas
     var conDato = indiceData.cadenas.filter(function (c) { return c.precio_completo_clp !== null; }).length;
     var total = indiceData.cadenas.length;
 
@@ -643,7 +643,7 @@
       return t;
     }
 
-    container.appendChild(tile("Precio ración (hoy)", fmtCLP(ultimo.precio_completo_clp), "base: " + fmtCLP(base.precio_completo_clp) + " el " + fmtFecha(base.fecha), "var(--text-secondary)"));
+    container.appendChild(tile("Precio ración (hoy)", fmtCLP(ultimo.precio_completo_clp), "promedio de " + ultimo.n_cadenas + " cadenas con dato hoy", "var(--text-secondary)"));
     container.appendChild(tile("Índice del Completo", fmtIdx(ultimo.indice), (deltaPct >= 0 ? "+" : "") + deltaPct.toFixed(2) + "% desde la base", deltaPct >= 0 ? "var(--critical)" : "var(--good)"));
     container.appendChild(tile("Cadenas con precio", conDato + " / " + total, "el resto está pendiente de captura manual", "var(--text-secondary)"));
   }
