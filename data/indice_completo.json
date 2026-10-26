@@ -4,7 +4,7 @@
   "_nota_regional": "docs/LIMITACION_REGIONAL.md",
   "base_periodo": "2026-09-23",
   "costo_racion_base_clp": 1008.09,
-  "generado_en": "2026-10-19T16:20:04.832207+00:00",
+  "generado_en": "2026-10-26T15:58:38.710683+00:00",
   "serie_nacional": [
     {
       "fecha": "2026-09-23",
@@ -149,6 +149,42 @@
           "aporte_clp": 200.7
         }
       ]
+    },
+    {
+      "fecha": "2026-10-26",
+      "precio_completo_clp": 1216.95,
+      "indice": 96.83,
+      "n_cadenas": 2,
+      "desglose": [
+        {
+          "categoria": "salchicha",
+          "precio_unitario": 1118.42,
+          "unidad": "100g",
+          "gramos_racion": 70,
+          "aporte_clp": 782.89
+        },
+        {
+          "categoria": "mayonesa",
+          "precio_unitario": 456.71,
+          "unidad": "100g",
+          "gramos_racion": 15,
+          "aporte_clp": 68.51
+        },
+        {
+          "categoria": "palta",
+          "precio_unitario": 4515.0,
+          "unidad": "kg",
+          "gramos_racion": 50,
+          "aporte_clp": 225.75
+        },
+        {
+          "categoria": "tomate",
+          "precio_unitario": 4660.0,
+          "unidad": "kg",
+          "gramos_racion": 30,
+          "aporte_clp": 139.8
+        }
+      ]
     }
   ],
   "cadenas": [
@@ -235,22 +271,22 @@
       "metodo": "automatico",
       "razon_corta": null,
       "razon_pendiente": null,
-      "precio_completo_clp": 1125.73,
-      "fecha": "2026-10-05",
+      "precio_completo_clp": 1147.81,
+      "fecha": "2026-10-26",
       "desglose": [
         {
           "categoria": "salchicha",
-          "precio_unitario": 1086.84,
+          "precio_unitario": 1118.42,
           "unidad": "100g",
           "gramos_racion": 70,
-          "aporte_clp": 760.79
+          "aporte_clp": 782.89
         },
         {
           "categoria": "mayonesa",
-          "precio_unitario": 493.59,
+          "precio_unitario": 493.42,
           "unidad": "100g",
           "gramos_racion": 15,
-          "aporte_clp": 74.04
+          "aporte_clp": 74.01
         },
         {
           "categoria": "palta",
@@ -369,6 +405,40 @@
               "aporte_clp": 78.9
             }
           ]
+        },
+        {
+          "fecha": "2026-10-26",
+          "precio_completo_clp": 1147.81,
+          "desglose": [
+            {
+              "categoria": "salchicha",
+              "precio_unitario": 1118.42,
+              "unidad": "100g",
+              "gramos_racion": 70,
+              "aporte_clp": 782.89
+            },
+            {
+              "categoria": "mayonesa",
+              "precio_unitario": 493.42,
+              "unidad": "100g",
+              "gramos_racion": 15,
+              "aporte_clp": 74.01
+            },
+            {
+              "categoria": "palta",
+              "precio_unitario": 4240.0,
+              "unidad": "kg",
+              "gramos_racion": 50,
+              "aporte_clp": 212.0
+            },
+            {
+              "categoria": "tomate",
+              "precio_unitario": 2630.0,
+              "unidad": "kg",
+              "gramos_racion": 30,
+              "aporte_clp": 78.9
+            }
+          ]
         }
       ]
     },
@@ -379,8 +449,8 @@
       "metodo": "automatico",
       "razon_corta": null,
       "razon_pendiente": null,
-      "precio_completo_clp": 1285.94,
-      "fecha": "2026-10-19",
+      "precio_completo_clp": 1286.09,
+      "fecha": "2026-10-26",
       "desglose": [
         {
           "categoria": "salchicha",
@@ -391,10 +461,10 @@
         },
         {
           "categoria": "mayonesa",
-          "precio_unitario": 419.0,
+          "precio_unitario": 420.0,
           "unidad": "100g",
           "gramos_racion": 15,
-          "aporte_clp": 62.85
+          "aporte_clp": 63.0
         },
         {
           "categoria": "palta",
@@ -531,6 +601,40 @@
               "unidad": "100g",
               "gramos_racion": 15,
               "aporte_clp": 62.85
+            },
+            {
+              "categoria": "palta",
+              "precio_unitario": 4790.0,
+              "unidad": "kg",
+              "gramos_racion": 50,
+              "aporte_clp": 239.5
+            },
+            {
+              "categoria": "tomate",
+              "precio_unitario": 6690.0,
+              "unidad": "kg",
+              "gramos_racion": 30,
+              "aporte_clp": 200.7
+            }
+          ]
+        },
+        {
+          "fecha": "2026-10-26",
+          "precio_completo_clp": 1286.09,
+          "desglose": [
+            {
+              "categoria": "salchicha",
+              "precio_unitario": 1118.42,
+              "unidad": "100g",
+              "gramos_racion": 70,
+              "aporte_clp": 782.89
+            },
+            {
+              "categoria": "mayonesa",
+              "precio_unitario": 420.0,
+              "unidad": "100g",
+              "gramos_racion": 15,
+              "aporte_clp": 63.0
             },
             {
               "categoria": "palta",

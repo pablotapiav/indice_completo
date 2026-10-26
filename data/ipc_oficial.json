@@ -2,7 +2,7 @@
   "_descripcion": "IPC oficial (INE), indice base 100 en el mismo periodo base del Indice del Completo. La variacion publicada para el mes M se aplica al mes M+1 (escalera). `variaciones` guarda las variaciones por mes de referencia.",
   "_fuente": "INE via r.jina.ai",
   "base_periodo_mes": "2026-09",
-  "generado_en": "2026-10-19T16:20:10.316462+00:00",
+  "generado_en": "2026-10-26T15:58:44.784668+00:00",
   "variaciones": {
     "2026-09": 0.4
   },
